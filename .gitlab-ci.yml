@@ -13,7 +13,7 @@ build: # JOB 이름
   script:
     - cd Back-End
     - echo [INFO] YML Settings
-    - cd ./src/main/resources
+    - cd src/main/resources
     - echo "$APPLICATION_YML" > "application.yml" # gitlab APPLICATION_YML을 이용하여 application.yml 파일 생성
     - echo "$APPLICATION_DATASOURCE_YML" > "application-datasource.yml"
     - echo [INFO] spring-boot project build

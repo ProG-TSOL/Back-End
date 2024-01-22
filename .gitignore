@@ -368,4 +368,7 @@ $RECYCLE.BIN/
 # and uncomment the following lines
 # .pnp.*
 
+# BE spring 설정파일 추가
+resources/application*.yml
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij,macos,windows,java,react,node,yarn

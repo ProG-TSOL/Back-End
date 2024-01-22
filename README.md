@@ -3,8 +3,9 @@
 # 깃 컨벤션
 ## 브렌치 생성 컨벤션
 - 브랜치 이름 생성 
-  - feature/login_fe_지라 이슈 넘버
-  - feature/login_[FE]_#72
+  - 구분/commit type/기능명_지라 이슈 넘버 
+    - be/feature/login_#72
+    - fe/feature/login_#99
 - 형상 관리
   - main : 기준이 되는 브랜치 (재품 배포)
   - dev : 개발 브랜치, 배포전 최종 확인

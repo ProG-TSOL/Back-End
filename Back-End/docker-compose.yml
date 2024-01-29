@@ -1,7 +1,7 @@
 version: "4"
 services:
   springboot:
-    image: subam/spring:latest
+    image: subam/prog-spring:latest
     container_name: spc
     ports:
       - "8080:8080" # 호스트 포트를 8081로 변경
@@ -10,7 +10,7 @@ services:
     restart: "always"
 
   nginx:
-    image: subam/nginx:latest
+    image: subam/nginx-cicd:latest
     container_name: nc
     ports:
       - "80:80" # 호스트 포트를 81로 변경

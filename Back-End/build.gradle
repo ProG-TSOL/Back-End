@@ -37,8 +37,28 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation "io.jsonwebtoken:jjwt:0.9.1"
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.modelmapper:modelmapper:3.1.0'
+	implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
+	// S3 버킷 추가(AWS 통신용?)
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// p6spy 쿼리로그 -> 운영서버에선 지울것
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+def generatedDir = 'src/main/generated'
+
+clean {
+	delete file (generatedDir)
 }

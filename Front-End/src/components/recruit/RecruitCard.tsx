@@ -33,7 +33,7 @@ const RecruitCard = () => {
         ))}
       </div>
       <div>
-        {myproject === false ? (
+        {myproject === true ? (
           <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded-lg'>
             내 프로젝트로
           </button>

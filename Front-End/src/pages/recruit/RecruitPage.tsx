@@ -28,5 +28,5 @@ const RecruitPage: React.FC = () => {
     </React.StrictMode>
   );
 };
-
 export default RecruitPage;
+

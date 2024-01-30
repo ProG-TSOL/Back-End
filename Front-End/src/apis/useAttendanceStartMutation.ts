@@ -1,10 +1,10 @@
-import axios from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../constants/queryKeys";
+import axios from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../constants/queryKeys';
 
 //api 호출 함수 정의
 const startAttendance = (projectId: string) => {
-  return axios.post(`{{ip}}/attendance_logs/${projectId}/start`);
+	return axios.post(`{{ip}}/attendance_logs/${projectId}/start`);
 };
 
 //react query hook 사용해서 api 호출 및 캐시 관리

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-interface KPTMemoProps {  
+interface KPTMemoProps {
   modalOpen: boolean;
   setModalOpen: (value: boolean) => void;
 }

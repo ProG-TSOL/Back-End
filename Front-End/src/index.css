@@ -1,4 +1,4 @@
 /* tailwind의 preflight가 여기서 적용됨 */
-@tailwind base;
+@tailwind base; 
 @tailwind components;
 @tailwind utilities;

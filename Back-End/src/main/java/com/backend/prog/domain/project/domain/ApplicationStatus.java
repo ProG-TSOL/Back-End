@@ -4,6 +4,7 @@ import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.member.domain.Member;
 import com.backend.prog.global.common.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -13,6 +14,7 @@ import org.hibernate.annotations.Comment;
 @Getter
 @ToString(exclude = {"project", "member", "jobCode"})
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "application_status")
 public class ApplicationStatus extends BaseEntity {
     @EmbeddedId

@@ -10,6 +10,7 @@ import org.hibernate.annotations.Comment;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Table(name = "project_member")
 public class ProjectMember extends DeleteEntity {
     @EmbeddedId
@@ -38,7 +39,7 @@ public class ProjectMember extends DeleteEntity {
     private CodeDetail roleCode;
 
     @Builder
-    private ProjectMember(Member member, Project project, CodeDetail jobCode, CodeDetail roleCode){
+    private ProjectMember(ProjectMemberId id, Member member, Project project, CodeDetail jobCode, CodeDetail roleCode){
         this.member = member;
         this.project = project;
         this.jobCode = jobCode;

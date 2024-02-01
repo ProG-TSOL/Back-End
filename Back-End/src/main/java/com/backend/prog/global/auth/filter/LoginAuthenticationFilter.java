@@ -18,7 +18,7 @@ import java.util.Map;
 @Log4j2
 public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     public LoginAuthenticationFilter() {
-        super(new AntPathRequestMatcher("/login", "POST"));
+        super(new AntPathRequestMatcher("/members/login", "POST"));
     }
 
     @Override

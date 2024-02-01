@@ -5,6 +5,7 @@ import com.backend.prog.global.common.DeleteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -48,5 +49,11 @@ public class Additional extends DeleteEntity {
         Optional.of(post.url()).ifPresent(this::setUrl);
         Optional.of(imgUrl).ifPresent(this::setImgUrl);
         Optional.of(project).ifPresent(this::setProject);
+    }
+
+    public void updateAdditional(AdditionalDto.Patch patch, String imgUrl){
+        Optional.of(patch.title()).ifPresent(this::setTitle);
+        Optional.of(patch.url()).ifPresent(this::setUrl);
+        Optional.of(imgUrl).ifPresent(this::setImgUrl);
     }
 }

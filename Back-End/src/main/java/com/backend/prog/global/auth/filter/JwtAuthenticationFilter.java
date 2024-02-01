@@ -28,15 +28,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] EXCEPT_URL = {"/login", "/join"};
+    private static final String[] EXCEPT_URL = {"/members", "/login", "/join"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
 
         for(String URL : EXCEPT_URL) {
-            if(path.contains(URL)) {
+            if(path.contains(URL) && !path.contains("/change-password") && !path.contains("/delete-member")) {
                 filterChain.doFilter(request, response);
+                return;
             }
         }
 
@@ -50,13 +51,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             List<String> authorities = ((List<String>) claim.get("authorities"));
 
             setAuthenticatedUser(id, authorities);
-
-            filterChain.doFilter(request, response);
         } catch (ExpiredJwtException expiredJwtException) {
             reissueToken(request, response);
         } catch (Exception exception) {
             throw new CommonException(ExceptionEnum.INVALID_ACCESS_TOKEN);
         }
+
+        filterChain.doFilter(request, response);
     }
 
     protected void reissueToken(HttpServletRequest request, HttpServletResponse response) {

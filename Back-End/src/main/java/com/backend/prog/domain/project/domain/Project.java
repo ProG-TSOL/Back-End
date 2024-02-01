@@ -102,4 +102,20 @@ public class Project extends DeleteEntity implements Serializable {
             this.techCodes.add(projectTechCode);
         }
     }
+
+    public void startProject() {
+        this.startDay = LocalDate.now();
+    }
+
+    public void endProject() {
+        this.endDay = LocalDate.now();
+    }
+
+    public void addLike() {
+     this.likeCnt += 1;
+    }
+
+    public void deleteLike() {
+        this.likeCnt -= 1;
+    }
 }

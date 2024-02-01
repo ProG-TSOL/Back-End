@@ -71,11 +71,12 @@ public class ProjectRespositoryImpl implements ProjectRespositoryCustom {
         List<Project> projects =  jpaQueryFactory
                 .select(project)
                 .from(project)
-//                .join(project.statusCode, codeDetail)
-//                .on(statusCodeEq(statusCode))
-                .join(project.techCodes, projectTechCode)
+                .join(projectTechCode)
                 .on(techCodesEq(techCodes))
-                .where(project.isDeleted.eq(false), keywordEq(keyword), statusCodeEq(statusCode))
+                .where(project.isDeleted.eq(false), keywordEq(keyword), statusCodeEq(statusCode), techCodesEq(techCodes))
+                .groupBy(project.id)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         return new PageImpl<>(projects, pageable, projects.size());

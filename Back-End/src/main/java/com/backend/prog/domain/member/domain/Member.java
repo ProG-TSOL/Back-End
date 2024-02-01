@@ -84,4 +84,10 @@ public class Member extends DeleteEntity {
     public void addProvider(Provider provider) {
         this.provider = provider;
     }
+
+    @Override
+    public void deleteData() {
+        super.deleteData();
+        this.nickname = "알 수 없음";
+    }
 }

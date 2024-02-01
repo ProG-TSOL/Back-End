@@ -1,20 +1,19 @@
 package com.backend.prog.domain.project.application;
 
 import com.backend.prog.domain.manager.application.CodeService;
-import com.backend.prog.domain.manager.domain.CodeDetail;
+import com.backend.prog.domain.project.dao.ProjectMemberRespository;
 import com.backend.prog.domain.project.dao.ProjectTotalRespository;
-import com.backend.prog.domain.project.domain.Project;
 import com.backend.prog.domain.project.domain.ProjectCodeDetaliId;
-import com.backend.prog.domain.project.domain.ProjectTechCode;
+import com.backend.prog.domain.project.domain.ProjectMember;
+import com.backend.prog.domain.project.domain.ProjectMemberId;
 import com.backend.prog.domain.project.domain.ProjectTotal;
-import com.backend.prog.domain.project.dto.JobCodeTotalDto;
-import com.backend.prog.domain.project.dto.ProjectTotalDtoSample;
+import com.backend.prog.global.error.CommonException;
+import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProjectTotalService {
     private final ProjectTotalRespository projectTotalRespository;
+    private final ProjectMemberRespository projectMemberRespository;
     private final CodeService codeService;
     private final ModelMapper mapper;
 
@@ -38,8 +38,17 @@ public class ProjectTotalService {
         projectTotalRespository.save(projectTotal);
     }
 
-    public void deleteProject(Long projectId, Integer jobCode) {
+    public void deleteProject(Long projectId, Integer memberId, Integer jobCode) {
         ProjectCodeDetaliId projectCodeDetaliId = new ProjectCodeDetaliId(projectId, jobCode);
+
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+
+        Optional<ProjectMember> projectMember = projectMemberRespository.findById(projectMemberId);
+
+        if(!projectMember.isPresent() || projectMember.get().getRoleCode().getId() != 17){
+            throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
+        }
+
         projectTotalRespository.deleteById(projectCodeDetaliId);
     }
 }

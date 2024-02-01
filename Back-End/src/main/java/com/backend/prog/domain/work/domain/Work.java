@@ -7,6 +7,7 @@ import com.backend.prog.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 
@@ -82,15 +83,31 @@ public class Work extends BaseEntity {
         this.endDay = endDay;
     }
 
-    public void updateWork(CodeDetail statusCode, CodeDetail priorityCode, Member consumerId, String title
-            , String content, LocalDate startDay, LocalDate endDay) {
-        this.statusCode = statusCode;
-        this.priorityCode = priorityCode;
-        this.consumerId = consumerId;
-        this.title = title;
-        this.content = content;
-        this.startDay = startDay;
-        this.endDay = endDay;
+    public void updateWork(CodeDetail statusCode, Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
+        if (statusCode != null) {
+            this.statusCode = statusCode;
+        }
+        if (consumerId != null) {
+            this.consumerId = consumerId;
+        }
+        if (StringUtils.hasText(title)) {
+            this.title = title;
+        }
+        if (StringUtils.hasText(content)) {
+            this.content = content;
+        }
+        if (startDay != null) {
+            this.startDay = startDay;
+        }
+        if (endDay != null) {
+            this.endDay = endDay;
+        }
+    }
+
+    public void updateWorkStatus(CodeDetail statusCode) {
+        if (statusCode != null) {
+            this.statusCode = statusCode;
+        }
     }
 
 }

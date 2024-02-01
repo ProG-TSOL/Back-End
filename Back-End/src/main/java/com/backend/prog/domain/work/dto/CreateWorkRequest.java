@@ -6,9 +6,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-public record CreateWorkRequest(@NotNull Long projectId,
+public record CreateWorkRequest(@NotNull(message = "프로젝트ID는 필수값입니다.") Long projectId,
                                 @NotNull Integer producerId,
                                 @NotNull Integer statusCode,
                                 @NotNull Integer typeCode,

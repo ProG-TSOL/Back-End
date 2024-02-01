@@ -143,11 +143,15 @@ public class JwtUtil {
     public void destroyRefreshToken(HttpServletResponse response ,Integer id) {
         refreshTokenRepository.deleteById(id);
 
-        Cookie cookie = new Cookie(refreshTokenHeader, "");
+        ResponseCookie cookie = ResponseCookie.from(refreshTokenHeader, "")
+                .maxAge(0)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
 
-        cookie.setMaxAge(0);
-
-        response.addCookie(cookie);
+        response.setHeader("Set-Cookie", cookie.toString());
     }
 
     public boolean isBlackList(String token) {

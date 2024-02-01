@@ -1,11 +1,13 @@
 package com.backend.prog.domain.work.dto;
 
 import com.backend.prog.domain.manager.dto.CodeDetailSimpleResponse;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
+@ToString(exclude = {"statusCode", "typeCode", "priorityCode"})
+@NoArgsConstructor
 public class WorkListResponse {
     private Long workId;
 
@@ -20,4 +22,15 @@ public class WorkListResponse {
     private LocalDate startDay;
     private LocalDate endDay;
 
+    @Builder
+    private WorkListResponse(Long workId, CodeDetailSimpleResponse statusCode, CodeDetailSimpleResponse typeCode, CodeDetailSimpleResponse priorityCode, String producerMemberName, String title, LocalDate startDay, LocalDate endDay) {
+        this.workId = workId;
+        this.statusCode = statusCode;
+        this.typeCode = typeCode;
+        this.priorityCode = priorityCode;
+        this.producerMemberName = producerMemberName;
+        this.title = title;
+        this.startDay = startDay;
+        this.endDay = endDay;
+    }
 }

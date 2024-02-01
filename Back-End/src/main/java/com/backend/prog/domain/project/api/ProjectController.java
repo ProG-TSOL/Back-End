@@ -1,35 +1,22 @@
 package com.backend.prog.domain.project.api;
 
-import com.backend.prog.domain.manager.dao.CodeDetailRepository;
-import com.backend.prog.domain.manager.dao.CodeRepository;
-import com.backend.prog.domain.manager.domain.Code;
-import com.backend.prog.domain.manager.domain.CodeDetail;
-import com.backend.prog.domain.project.application.AdditionalService;
-import com.backend.prog.domain.project.application.ProjectService;
-import com.backend.prog.domain.project.application.ProjectTechCodeService;
-import com.backend.prog.domain.project.application.ProjectTotalService;
+import com.backend.prog.domain.project.application.*;
 import com.backend.prog.domain.project.domain.Additional;
+import com.backend.prog.domain.project.domain.ApplicationStatus;
 import com.backend.prog.domain.project.domain.Project;
 import com.backend.prog.domain.project.dto.AdditionalDto;
 import com.backend.prog.domain.project.dto.ProjectDto;
-import com.backend.prog.domain.project.dto.ProjectDtoSample;
+import com.backend.prog.domain.project.dto.ProjectMemberDto;
 import com.backend.prog.global.common.CommonApiResponse;
-import com.backend.prog.global.common.ResponseWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
 import java.util.List;
 
 
@@ -42,13 +29,15 @@ public class ProjectController {
     private final ProjectTotalService projectTotalService;
     private final ProjectTechCodeService projectTechCodeService;
     private final AdditionalService additionalService;
+    private final ProjectMemberService projectMemberService;
+    private final ApplicationStatusService applicationStatusService;
 
-    @PostMapping
+    @PostMapping("{member-id}")
     public CommonApiResponse<?> createProject(
-//            @AuthenticationPrincipal MemberDto.Post member,
+            @PathVariable("member-id") Integer memberId,
             @RequestPart("post") ProjectDto.Post post,
             @RequestParam(value = "file", required = false) MultipartFile file) {
-        Project result = projectService.createProject(post, file);
+        Project result = projectService.createProject(memberId, post, file);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
@@ -62,20 +51,21 @@ public class ProjectController {
                                             @RequestParam(name = "techCodes", required = false) Integer techCodes,
                                             @RequestParam(name = "statusCode", required = false) Integer statusCode,
                                             @RequestParam(name = "sort", required = false) String sort,
-                                            @PageableDefault(page = 0, size = 20) Pageable pageable){
+                                            @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
         Page<ProjectDto.SimpleResponse> response = projectService.getProjects(keyword, techCodes, statusCode, sort, pageable);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
                 .data(response)
-                .cnt(response.getSize())
+                .cnt(response.getContent().size())
                 .build();
     }
 
-    @GetMapping("{project-id}")
-    public CommonApiResponse<?> getProject(@PathVariable("project-id") Long id){
-        ProjectDto.Response response = projectService.getProject(id);
+    @GetMapping("{project-id}/{member-id}")
+    public CommonApiResponse<?> getProject(@PathVariable("project-id") Long projectId,
+                                           @PathVariable("member-id") Integer memberId) {
+        ProjectDto.Response response = projectService.getProject(projectId, memberId);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
@@ -84,11 +74,12 @@ public class ProjectController {
                 .build();
     }
 
-    @PatchMapping("{project-id}")
+    @PatchMapping("{project-id}/{member-id}")
     public CommonApiResponse<?> updateProject(@PathVariable("project-id") Long id,
+                                              @PathVariable("member-id") Integer memberId,
                                               @RequestPart("patch") ProjectDto.Patch patch,
-                                              @RequestParam(value = "file", required = false) MultipartFile file){
-        ProjectDto.Response response = projectService.updateProject(id, patch, file);
+                                              @RequestParam(value = "file", required = false) MultipartFile file) {
+        ProjectDto.Response response = projectService.updateProject(id, patch, file, memberId);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
@@ -97,10 +88,11 @@ public class ProjectController {
                 .build();
     }
 
-    @DeleteMapping("{project-id}")
-    public CommonApiResponse<?> deleteProject(@PathVariable("project-id") Long id){
+    @DeleteMapping("{project-id}/{member-id}")
+    public CommonApiResponse<?> deleteProject(@PathVariable("project-id") Long id,
+                                              @PathVariable("member-id") Integer memberId) {
 
-        Project response = projectService.deleteProject(id);
+        Project response = projectService.deleteProject(id, memberId);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
@@ -109,37 +101,38 @@ public class ProjectController {
                 .build();
     }
 
-    @DeleteMapping("{project-id}/projectTotal/{job-code}")
+    @DeleteMapping("{project-id}/{member-id}/projectTotal/{job-code}")
     public CommonApiResponse<?> deleteProjectTotal(@PathVariable("project-id") Long projectId,
-                                              @PathVariable("job-code") Integer jobCode){
-        log.info("{}", projectId);
-        projectTotalService.deleteProject(projectId, jobCode);
+                                                   @PathVariable("member-id") Integer memberId,
+                                                   @PathVariable("job-code") Integer jobCode) {
+
+        projectTotalService.deleteProject(projectId, memberId, jobCode);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
-                .data(1)
                 .cnt(1)
                 .build();
     }
 
-    @DeleteMapping("{project-id}/projectTech/{tech-code}")
+    @DeleteMapping("{project-id}/{member-id}/projectTech/{tech-code}")
     public CommonApiResponse<?> deleteProjectTech(@PathVariable("project-id") Long projectId,
-                                                  @PathVariable("tech-code") Integer techCode){
+                                                  @PathVariable("member-id") Integer memberId,
+                                                  @PathVariable("tech-code") Integer techCode) {
 
-        projectTechCodeService.deleteProject(projectId, techCode);
+        projectTechCodeService.deleteProject(projectId, memberId, techCode);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
-                .data(1)
                 .cnt(1)
                 .build();
     }
 
-    @PostMapping("{project-id}/additional")
+    @PostMapping("{project-id}/additional/{member-id}")
     public CommonApiResponse<?> createAdditional(@PathVariable("project-id") Long projectId,
-                                                 @RequestPart("post")AdditionalDto.Post post,
-                                                 @RequestParam(value = "file", required = false) MultipartFile file){
-        Additional additional = additionalService.createAdditional(projectId, file, post);
+                                                 @PathVariable("member-id") Integer memberId,
+                                                 @RequestPart("post") AdditionalDto.Post post,
+                                                 @RequestParam(value = "file", required = false) MultipartFile file) {
+        Additional additional = additionalService.createAdditional(projectId, memberId, file, post);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
@@ -148,15 +141,151 @@ public class ProjectController {
                 .build();
     }
 
-    @GetMapping("{project-id}/additional")
-    public CommonApiResponse<?> getAdditional(@PathVariable("project-id") Long projectId){
+    @GetMapping("{project-id}/additional/{member-id}")
+    public CommonApiResponse<?> getAdditional(@PathVariable("project-id") Long projectId,
+                                              @PathVariable("member-id") Integer memberId) {
 
-        List<AdditionalDto.Response> responses = additionalService.getAdditionals(projectId);
+        List<AdditionalDto.Response> responses = additionalService.getAdditionals(projectId, memberId);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
                 .data(responses)
                 .cnt(responses.size())
+                .build();
+    }
+
+    @PatchMapping("{additional-id}/additional/{member-id}")
+    public CommonApiResponse<?> updateAdditional(@PathVariable("additional-id") Long additionalId,
+                                                 @PathVariable("member-id") Integer memberId,
+                                                 @RequestPart("patch") AdditionalDto.Patch patch,
+                                                 @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        AdditionalDto.Response responses = additionalService.updateAdditional(additionalId, memberId, patch, file);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(responses)
+                .cnt(1)
+                .build();
+    }
+
+    @DeleteMapping("{additional-id}/additional/{member-id}")
+    public CommonApiResponse<?> deleteAdditional(@PathVariable("additional-id") Long additionalId,
+                                                 @PathVariable("member-id") Integer memberId) {
+
+        Additional responses = additionalService.deleteAdditional(additionalId, memberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(responses.getId())
+                .cnt(1)
+                .build();
+    }
+
+    @PatchMapping("{project-id}/start/{member-id}")
+    public CommonApiResponse<?> startProject(@PathVariable("project-id") Long projectId,
+                                             @PathVariable("member-id") Integer memberId) {
+        Project project = projectService.startProject(projectId, memberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(project.getId())
+                .build();
+    }
+
+    @PatchMapping("{project-id}/end/{member-id}")
+    public CommonApiResponse<?> endProject(@PathVariable("project-id") Long projectId,
+                                           @PathVariable("member-id") Integer memberId) {
+        Project project = projectService.endProject(projectId, memberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(project.getId())
+                .cnt(1)
+                .build();
+    }
+
+    @PostMapping("{project-id}/application/{member-id}")
+    public CommonApiResponse<?> createApplication(@PathVariable("project-id") Long projectId,
+                                                  @PathVariable("member-id") Integer memberId,
+                                                  @RequestParam("jobCode") Integer jobCode) {
+
+        applicationStatusService.createApplicationStatus(projectId, memberId, jobCode);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .cnt(1)
+                .build();
+    }
+
+    @PostMapping("{project-id}/acceptMember/{member-id}")
+    public CommonApiResponse<?> acceptMember(@PathVariable("project-id") Long projectId,
+                                             @PathVariable("member-id") Integer memberId,
+                                             @RequestParam("acceptMemberId") Integer acceptMemberId){
+        applicationStatusService.acceptMember(projectId, memberId, acceptMemberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .cnt(1)
+                .build();
+    }
+
+    @DeleteMapping("{project-id}/refuseMember/{member-id}")
+    public CommonApiResponse<?> refuseMember(@PathVariable("project-id") Long projectId,
+                                             @PathVariable("member-id") Integer memberId,
+                                             @RequestParam("refusememberId") Integer acceptMemberId){
+        applicationStatusService.refuseMember(projectId, memberId, acceptMemberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .cnt(1)
+                .build();
+    }
+
+    @GetMapping("{project-id}/embers")
+    public CommonApiResponse<?> getProjectMembers(@PathVariable("project-id") Long projecId){
+
+        List<ProjectMemberDto.Response> responses = projectMemberService.getProjectMembers(projecId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(responses)
+                .cnt(1)
+                .build();
+    }
+
+    @DeleteMapping("{project-id}/exiled/{member-id}")
+    public CommonApiResponse<?> deleteProjectMember(@PathVariable("project-id") Long projectId,
+                                                    @PathVariable("member-id") Integer memberId,
+                                                    @RequestParam("exileId") Integer exiledId){
+
+        projectMemberService.deleteProjectMember(projectId, memberId, exiledId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .cnt(1)
+                .build();
+    }
+
+    @PostMapping("{project-id}/like/{member-id}/add")
+    public CommonApiResponse<?> addLike(@PathVariable("project-id") Long projectId,
+                                        @PathVariable("member-id") Integer memberId){
+        projectService.addLike(projectId, memberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .cnt(1)
+                .build();
+    }
+
+    @DeleteMapping("{project-id}/like/{member-id}/delete")
+    public CommonApiResponse<?> deleteLike(@PathVariable("project-id") Long projectId,
+                                        @PathVariable("member-id") Integer memberId){
+        projectService.deleteLike(projectId, memberId);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .cnt(1)
                 .build();
     }
 }

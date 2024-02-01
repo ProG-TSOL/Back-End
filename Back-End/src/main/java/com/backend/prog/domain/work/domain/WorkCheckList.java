@@ -5,14 +5,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.DynamicInsert;
+import org.springframework.util.StringUtils;
 
 @Entity
 @Getter
 @ToString(exclude = {"work"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "work_checklist")
+@DynamicInsert
 public class WorkCheckList extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,22 +33,21 @@ public class WorkCheckList extends BaseEntity {
     @ColumnDefault("false")
     private Boolean isFinish;
 
-    @Comment("시작일시")
-    private LocalDateTime startedAt;
-
-    @Comment("종료일시")
-    private LocalDateTime finishedAt;
-
     @Builder
-    private WorkCheckList(Work work, String title, Boolean isFinish, LocalDateTime startedAt, LocalDateTime finishedAt) {
+    private WorkCheckList(Work work, String title, Boolean isFinish) {
         this.work = work;
         this.title = title;
         this.isFinish = isFinish;
-        this.startedAt = startedAt;
-        this.finishedAt = finishedAt;
+    }
+
+    public void update(String title) {
+        if (StringUtils.hasText(title)) {
+            this.title = title;
+        }
     }
 
     public void checkFinish(Boolean isFinish) {
         this.isFinish = isFinish;
     }
+
 }

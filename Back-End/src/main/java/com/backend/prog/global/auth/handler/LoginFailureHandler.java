@@ -1,7 +1,7 @@
 package com.backend.prog.global.auth.handler;
 
-import com.backend.prog.global.auth.service.ResponseService;
 import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.global.util.ResponseUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +16,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
-    private final ResponseService responseService;
+    private final ResponseUtil responseUtil;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        responseService.setErrorResponse(response, ExceptionEnum.LOGIN_FAILED);
+        responseUtil.setErrorResponse(response, ExceptionEnum.LOGIN_FAILED);
     }
 }

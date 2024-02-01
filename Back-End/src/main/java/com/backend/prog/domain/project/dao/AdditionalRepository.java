@@ -9,7 +9,13 @@ import java.util.List;
 
 public interface AdditionalRepository extends JpaRepository<Additional, Long> {
     @Query(value = "select a from Additional a where a.project.id = :projectId")
-    List<Additional> findAllByProjectId(@Param("projectId") Long projectId);
+    Additional findAllByProjectId(@Param("projectId") Long projectId);
 
     int countAllByProjectId(Long projectId);
+
+    @Query(value = "select a from Additional a where a.project.id = :projectId and a.isDeleted = false")
+    List<Additional> findAllByProjectIdAndIsDeletedFalse(@Param("projectId") Long projectId);
+
+    @Query(value = "select count(a) from Additional a where a.project.id = :projectId and a.isDeleted = false")
+    int countAllByProjectIdAndIdDeleteFalse(@Param("projectId") Long projectId);
 }

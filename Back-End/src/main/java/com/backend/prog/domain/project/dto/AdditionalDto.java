@@ -7,6 +7,10 @@ public class AdditionalDto {
 
     }
 
+    public record Patch(String title, String url){
+
+    }
+
     @Builder
     public record Response(Long id, String title, String url, String imgUrl){
     }

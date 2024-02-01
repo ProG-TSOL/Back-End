@@ -5,8 +5,6 @@ import com.backend.prog.domain.member.domain.Member;
 import com.backend.prog.global.auth.dto.MemberSecurityDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,6 +21,10 @@ public class MemberDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.getWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Email Not Found"));
+
+        if(member.isDeleted()) {
+            throw new UsernameNotFoundException("Email Not Found");
+        }
 
         return new MemberSecurityDTO(member);
     }

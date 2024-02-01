@@ -1,19 +1,18 @@
-package com.backend.prog.global.auth.service;
+package com.backend.prog.global.util;
 
 import com.backend.prog.global.error.CommonExceptionDto;
 import com.backend.prog.global.error.ExceptionEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Service
-public class ResponseService {
-
+@Component
+public class ResponseUtil {
     public void setErrorResponse(HttpServletResponse response, ExceptionEnum exceptionEnum) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         CommonExceptionDto commonExceptionDto = new CommonExceptionDto(exceptionEnum.getCode(), exceptionEnum.getMessage());
@@ -29,5 +28,4 @@ public class ResponseService {
 
         response.getWriter().write(objectMapper.writeValueAsString(map));
     }
-
 }

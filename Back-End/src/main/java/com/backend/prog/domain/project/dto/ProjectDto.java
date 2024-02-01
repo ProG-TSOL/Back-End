@@ -5,6 +5,7 @@ import com.backend.prog.domain.manager.dto.CodeDetailDto;
 import com.backend.prog.domain.manager.dto.CodeDetailResponse;
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class ProjectDto {
@@ -19,7 +20,7 @@ public class ProjectDto {
     }
 
     @Builder
-    public record Response(Long id, String title, String content, Integer viewCnt, Integer likeCnt, Integer period, String projectImgUrl,
+    public record Response(Long id, boolean isMember, String title, String content, LocalDate startDay, Integer viewCnt, Integer likeCnt, Integer period, String projectImgUrl,
                            CodeDetailDto.SampleResponse statusCode, List<CodeDetailDto.SampleResponse> techCodes, List<ProjectTotalDto.SimpleResponse> projectTotals){
 
     }

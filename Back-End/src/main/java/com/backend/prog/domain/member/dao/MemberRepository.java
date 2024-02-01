@@ -12,4 +12,9 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
     @EntityGraph(attributePaths = "roles")
     @Query("select m from Member m where m.email = :email")
     Optional<Member> getWithRoles(String email);
+
+    Optional<Member> findByNickname(String nickName);
+
+    @Query("select m from Member m where m.id = :id and m.isDeleted = false")
+    Optional<Member> findByIdAndDeletedNot(Integer id);
 }

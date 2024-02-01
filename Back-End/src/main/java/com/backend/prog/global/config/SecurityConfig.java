@@ -1,12 +1,13 @@
 package com.backend.prog.global.config;
 
+import com.backend.prog.domain.member.dao.MemberRepository;
 import com.backend.prog.global.auth.filter.JwtAuthenticationFilter;
 import com.backend.prog.global.auth.filter.JwtExceptionFilter;
 import com.backend.prog.global.auth.filter.LoginAuthenticationFilter;
 import com.backend.prog.global.auth.handler.*;
 import com.backend.prog.global.auth.service.MemberDetailsService;
-import com.backend.prog.global.auth.service.ResponseService;
 import com.backend.prog.global.util.JwtUtil;
+import com.backend.prog.global.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
@@ -38,11 +39,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JwtUtil jwtUtil;
+
+    private final ResponseUtil responseUtil;
+
     private final MemberDetailsService memberDetailsService;
 
-    private final ResponseService responseService;
-
-    private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
@@ -53,9 +56,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request ->
-                request.requestMatchers("/somethingAllowUrl", "/logout").permitAll()
+                request.requestMatchers("/members/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout
+                        .logoutUrl("/members/logout")
+                        .logoutUrl("/members/delete-member")
                         .addLogoutHandler(jwtLogoutHandler())
                         .logoutSuccessHandler(jwtLogoutSuccessHandler()));
 
@@ -101,7 +106,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginFailureHandler loginFailureHandler() {
-        return new LoginFailureHandler(responseService);
+        return new LoginFailureHandler(responseUtil);
     }
 
     @Bean
@@ -120,13 +125,14 @@ public class SecurityConfig {
 
     @Bean
     public JwtExceptionFilter jwtExceptionFilter() {
-        return new JwtExceptionFilter(responseService);
+        return new JwtExceptionFilter(responseUtil);
     }
 
     @Bean
     public JwtLogoutHandler jwtLogoutHandler() {
-        return new JwtLogoutHandler(jwtUtil);
+        return new JwtLogoutHandler(jwtUtil, memberRepository);
     }
+
 
     @Bean
     public JwtLogoutSuccessHandler jwtLogoutSuccessHandler() {

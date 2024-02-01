@@ -2,11 +2,13 @@ package com.backend.prog.domain.project.application;
 
 import com.backend.prog.domain.manager.dao.CodeDetailRepository;
 import com.backend.prog.domain.manager.domain.CodeDetail;
+import com.backend.prog.domain.member.application.MemberService;
+import com.backend.prog.domain.member.dao.MemberRepository;
+import com.backend.prog.domain.member.domain.Member;
+import com.backend.prog.domain.project.dao.LikeRepository;
+import com.backend.prog.domain.project.dao.ProjectMemberRespository;
 import com.backend.prog.domain.project.dao.ProjectRespository;
-import com.backend.prog.domain.project.domain.Project;
-import com.backend.prog.domain.project.domain.ProjectCodeDetaliId;
-import com.backend.prog.domain.project.domain.ProjectTechCode;
-import com.backend.prog.domain.project.domain.ProjectTotal;
+import com.backend.prog.domain.project.domain.*;
 import com.backend.prog.domain.project.dto.ProjectDto;
 import com.backend.prog.domain.project.mapper.ProjectMapper;
 import com.backend.prog.global.S3.S3Uploader;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +39,15 @@ public class ProjectService {
     private final CodeDetailRepository codeDetailRepository;
     private final ProjectTotalService projectTotalService;
     private final ProjectTechCodeService projectTechCodeService;
-    private final ProjectMemberService projectMemberService;
+    private final ProjectMemberService projectMemberService; //지우고 service 거치는거 레포로 변경해야됨
+    private final ProjectMemberRespository projectMemberRespository;
     private final ProjectMapper projectMapper;
+    private final MemberService memberService; //지우고 service 거치는거 레포로 변경해야됨
+    private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
-    public Project createProject(ProjectDto.Post projectDto, MultipartFile file) {
+    public Project createProject(Integer memberId, ProjectDto.Post projectDto, MultipartFile file) {
         String projectImgUrl = "";
 
         if (file != null){
@@ -49,7 +56,7 @@ public class ProjectService {
         }
 
         //프로젝트 상태 코드 (프로젝트 생성시 모집중을 기본값으로 입력)
-        CodeDetail statusCode = codeDetailRepository.findById(8).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        CodeDetail statusCode = codeDetailRepository.findById(19).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         Project project = new Project(projectDto, projectImgUrl, statusCode);
 
@@ -76,20 +83,16 @@ public class ProjectService {
             ProjectTotal projectTotal = new ProjectTotal(project, detail,
                     projectTotalPost.total(), projectTotalPost.current());
 
-            //             팀장 포지션 저장
-//            if(projectTotalPost.current() > 0){
-//                //팀장 코드 가져오기
-//                CodeDetail plCode =  codeDetailRepository.findById(1).orElseThrow(() -> new CommonException(ExceptionEnum.EntityNotFoundException));
-//
-//                ProjectMember projectMember = ProjectMember.builder()
-//                        .member(member)
-//                        .project(project)
-//                        .jobCode(detail)
-//                        .roleCode(plCode)
-//                        .build();
-//
-//                projectMemberService.createProjectMember(projectMember);
-//            }
+            //팀장 포지션 저장
+            if(projectTotalPost.current() > 0){
+                //팀장 코드 가져오기
+                CodeDetail plCode =  codeDetailRepository.findById(17).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+                Member pl = memberService.getMember(memberId);
+                ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
+                ProjectMember projectMember = new ProjectMember(projectMemberId, project, pl, detail, plCode);
+
+                projectMemberService.createProjectMember(projectMember);
+            }
             projectTotals.add(projectTotal);
         });
 
@@ -114,15 +117,33 @@ public class ProjectService {
         return result;
     }
 
-    public ProjectDto.Response getProject(Long id) {
+    public ProjectDto.Response getProject(Long id, Integer memberId) {
         Project project = projectRespository.findById(id).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        return projectMapper.entityToResponse(project);
+        ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
+
+        Optional<ProjectMember> projectMember = projectMemberService.getProjectMember(projectMemberId);
+
+        //프로젝트 멤버가 있으면 이미 프로젝트에 존재하는 유저
+        if (projectMember.isPresent()){
+            return projectMapper.entityToResponse(project, true);
+        }else {
+            return projectMapper.entityToResponse(project, false);
+        }
     }
 
     @Transactional
-    public ProjectDto.Response updateProject(Long id, ProjectDto.Patch patch, MultipartFile file) {
+    public ProjectDto.Response updateProject(Long id, ProjectDto.Patch patch, MultipartFile file, Integer memberId) {
         Project project = projectRespository.findById(id).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
+
+        ProjectMember projectMember = projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        
+        //요청한 멤버가 팀장인지 검사
+        if(projectMember.getRoleCode().getId() != 17){
+            throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
+        }
 
         String projectImgUrl = "";
 
@@ -167,16 +188,109 @@ public class ProjectService {
 
         projectRespository.save(project);
 
-        return projectMapper.entityToResponse(project);
+        return projectMapper.entityToResponse(project, true);
     }
 
-    public Project deleteProject(Long id) {
-        Project project = projectRespository.findById(id).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+    public Project deleteProject(Long projectId, Integer memberId) {
+        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
+        ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
+
+        ProjectMember projectMember = projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        //요청한 멤버가 팀장인지 검사
+        if(projectMember.getRoleCode().getId() != 17){
+            throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
+        }
         project.setDeleted(true);
 
         projectRespository.save(project);
 
         return project;
+    }
+
+    public Project startProject(Long projectId, Integer memberId) {
+        // 멤버가 팀장인지 확인
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+        Optional<ProjectMember> projectMember = projectMemberRespository.findById(projectMemberId);
+
+        if(!projectMember.isPresent() || !projectMember.get().getRoleCode().getId().equals(17)){
+            throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
+        }
+
+        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        
+        //이미 시작된 프로젝트인지 확인
+        if (project.getStartDay() == null){
+            project.startProject();
+        }else {
+            throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
+        }
+
+        projectRespository.save(project);
+
+        return project;
+    }
+
+    public Project endProject(Long projectId, Integer memberId) {
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+        Optional<ProjectMember> projectMember = projectMemberRespository.findById(projectMemberId);
+
+        if(!projectMember.isPresent() || projectMember.get().getRoleCode().getId() != 17){
+            throw new CommonException(ExceptionEnum.ALREADY_EXIST_START);
+        }
+
+        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        //이미 시작된 프로젝트인지 확인
+        if (project.getStartDay() != null || project.getEndDay() == null){
+            project.endProject();
+        }else {
+            throw new CommonException(ExceptionEnum.ALREADY_EXIST_END);
+        }
+
+        projectRespository.save(project);
+
+        return project;
+    }
+
+    @Transactional
+    public void addLike(Long projectId, Integer memberId) {
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+
+        Optional<Like> findLike = likeRepository.findById(projectMemberId);
+        
+        //이미 좋아요를 누른 멤버인지 검사
+        if(findLike.isPresent()){
+            throw new CommonException(ExceptionEnum.ALREADY_EXIST_Like);
+        }
+        
+        Project project = projectRespository.findById(projectId).orElseThrow(()-> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        
+        Like like = new Like(projectMemberId, project, member);
+
+        //프로젝트 좋아요 수 +1
+        project.addLike();
+
+        projectRespository.save(project);
+
+        likeRepository.save(like);
+    }
+
+    @Transactional
+    public void deleteLike(Long projectId, Integer memberId) {
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+
+        Like findLike = likeRepository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        Project project = projectRespository.findById(projectId).orElseThrow(()-> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        //프로젝트 좋아요 수 -1
+        project.deleteLike();
+
+        projectRespository.save(project);
+
+        likeRepository.delete(findLike);
     }
 }

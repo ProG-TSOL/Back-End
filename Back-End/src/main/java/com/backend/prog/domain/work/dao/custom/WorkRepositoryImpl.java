@@ -16,7 +16,8 @@ public class WorkRepositoryImpl implements WorkRepositoryCustom{
 
     @Override
     public List<Work> findAllByProject(Project project) {
-
-        return null;
+        return queryFactory.selectFrom(work)
+                .where(work.project.eq(project))
+                .fetch();
     }
 }

@@ -9,6 +9,10 @@ import com.backend.prog.domain.project.dto.ProjectTotalDto;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 @Component
 public class ProjectMapper {
 
@@ -45,11 +49,13 @@ public class ProjectMapper {
                 .build());
     }
 
-    public ProjectDto.Response entityToResponse(Project project) {
+    public ProjectDto.Response entityToResponse(Project project, boolean isMember) {
         return ProjectDto.Response.builder()
                 .id(project.getId())
+                .isMember(isMember)
                 .title(project.getTitle())
                 .content(project.getContent())
+                .startDay(project.getStartDay())
                 .viewCnt(project.getViewCnt())
                 .likeCnt(project.getLikeCnt())
                 .period(project.getPeriod())

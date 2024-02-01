@@ -1,7 +1,7 @@
 package com.backend.prog.global.auth.filter;
 
-import com.backend.prog.global.auth.service.ResponseService;
 import com.backend.prog.global.error.CommonException;
+import com.backend.prog.global.util.ResponseUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,14 +16,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
-    private final ResponseService responseService;
+    private final ResponseUtil responseUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         }  catch (CommonException e) {
-            responseService.setErrorResponse(response, e.getError());
+            responseUtil.setErrorResponse(response, e.getError());
         }
     }
 }

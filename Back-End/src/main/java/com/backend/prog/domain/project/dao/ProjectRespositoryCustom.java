@@ -13,5 +13,5 @@ import java.util.List;
 public interface ProjectRespositoryCustom {
     Page<ProjectDto.SimpleResponse> getProjectDetails(Pageable pageable);
 
-    Page<Project> getProject(String keyword, CodeDetail techCodes, Integer statusCode, Pageable pageable);
+    Page<Project> getProject(String keyword, Integer techCodes, Integer statusCode, Pageable pageable);
 }

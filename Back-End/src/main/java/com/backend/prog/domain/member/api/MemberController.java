@@ -11,8 +11,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.Map;
 
 @Log4j2
 @RestController
@@ -22,39 +24,76 @@ public class MemberController {
 
     private final MemberServiceImpl memberService;
 
-    @GetMapping("/profile/{id}")
-    public CommonApiResponse<?> getProfile(@PathVariable Integer id) {
-        MemberDto.Response response = memberService.getProfile(id);
-
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(response)
-                .cnt(1)
-                .build();
-    }
-
-    @GetMapping("/detail-profile/{id}")
-    public CommonApiResponse<?> getDetailProfile(@PathVariable Integer id) {
-        MemberDto.DetailResponse response = memberService.getDetailProfile(id);
-
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(response)
-                .cnt(1)
-                .build();
-    }
-
-    @GetMapping("/validate-nickName/{nickName}")
-    public CommonApiResponse<?> isUniqueNickName(@PathVariable String nickName) {
-        boolean isPresent = !memberService.checkNickname(nickName);
-
-        if (isPresent) {
-            throw new CommonException(ExceptionEnum.ALREADY_EXIST_NICKNAME);
+    @PostMapping("/sign-up")
+    public CommonApiResponse<?> signUp(@RequestBody @Valid MemberDto.Post memberDto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
         }
 
+        memberService.signUp(memberDto);
+
+       return  CommonApiResponse.builder()
+               .status(HttpStatus.CREATED)
+               .data(1)
+               .cnt(1)
+               .build();
+    }
+
+    @PatchMapping("/update-profile")
+    public CommonApiResponse<?> updateProfile(Principal principal, @RequestPart("member") @Valid MemberDto.ProfilePatch memberDto, BindingResult bindingResult, @RequestPart(value = "file", required = false) MultipartFile file) {
+        if(bindingResult.hasErrors()) {
+            throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
+        }
+
+        memberService.updateProfile(Integer.parseInt(principal.getName()), memberDto, file);
+
+        return  CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(1)
+                .cnt(1)
+                .build();
+    }
+
+    @GetMapping("/my-profile")
+    public CommonApiResponse<?> getMyProfile(Principal principal) {
+        MemberDto.Response response = memberService.getMyProfile(Integer.valueOf(principal.getName()));
+
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)
-                .data(nickName)
+                .data(response)
+                .cnt(1)
+                .build();
+    }
+
+    @GetMapping("/profile/{email}")
+    public CommonApiResponse<?> getProfile(@PathVariable String email) {
+        MemberDto.Response response = memberService.getProfile(email);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(response)
+                .cnt(1)
+                .build();
+    }
+
+    @GetMapping("/detail-profile/{email}")
+    public CommonApiResponse<?> getDetailProfile(@PathVariable String email) {
+        MemberDto.DetailResponse response = memberService.getDetailProfile(email);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(response)
+                .cnt(1)
+                .build();
+    }
+
+    @GetMapping("/nickname-validation-check/{nickname}")
+    public CommonApiResponse<?> isUniqueNickName(@PathVariable String nickname) {
+        memberService.checkNickname(0, nickname);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(nickname)
                 .cnt(1)
                 .build();
     }
@@ -66,6 +105,28 @@ public class MemberController {
         }
 
         memberService.changePassword(Integer.valueOf(principal.getName()), memberDto);
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(null)
+                .cnt(1)
+                .build();
+    }
+
+    @PostMapping("/email-verification")
+    public CommonApiResponse<?> sendAuthCode(@RequestBody Map<String, String> emailMap) {
+        memberService.sendAuthCode(emailMap.get("email"));
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(null)
+                .cnt(1)
+                .build();
+    }
+
+    @PostMapping("/email-verification-confirm")
+    public CommonApiResponse<?> verifyAuthCode(@RequestBody Map<String, String> map) {
+        memberService.verifyAuthCode(map.get("email"), map.get("authCode"));
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)

@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class ProjectDto {
-
     public record Post(String title, String content, Integer period,
                        List<CodeDetailDto.Request> totechList, List<ProjectTotalDto.Post> totalList){
     }

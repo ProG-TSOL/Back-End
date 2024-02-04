@@ -9,8 +9,8 @@ import org.springframework.data.redis.core.TimeToLive;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-@RedisHash(value = "BlackList")
-public class BlackList {
+@RedisHash(value = "blacklist")
+public class Blacklist {
 
     @Id
     private Integer id;
@@ -21,7 +21,7 @@ public class BlackList {
     private Integer expiration;
 
     @Builder
-    private BlackList(Integer id, String accessToken, Integer expiration) {
+    private Blacklist(Integer id, String accessToken, Integer expiration) {
         this.id = id;
         this.accessToken = accessToken;
         this.expiration = expiration;

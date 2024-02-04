@@ -36,7 +36,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
             jwtUtil.destroyRefreshToken(response, id);
 
-            if(path.contains("/delete-member")) {
+            if(path.contains("/withdrawal-member")) {
                 deleteMember(id);
             }
         } catch (Exception exception) {

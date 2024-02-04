@@ -9,6 +9,7 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.util.StringUtils;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -17,6 +18,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -67,19 +69,18 @@ public class ProjectRespositoryImpl implements ProjectRespositoryCustom {
     }
 
     @Override
-    public Page<Project> getProject(String keyword, CodeDetail techCodes, Integer statusCode, Pageable pageable) {
+    public Page<Project> getProject(String keyword, Integer techCodes, Integer statusCode, Pageable pageable) {
         List<Project> projects =  jpaQueryFactory
                 .select(project)
                 .from(project)
-                .join(projectTechCode)
-                .on(techCodesEq(techCodes))
                 .where(project.isDeleted.eq(false), keywordEq(keyword), statusCodeEq(statusCode), techCodesEq(techCodes))
                 .groupBy(project.id)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(projects, pageable, projects.size());
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), projects.size());
+
+        return new PageImpl<>(projects.subList(start, end), pageable, projects.size());
     }
 
     private BooleanExpression keywordEq(String keyword){
@@ -90,7 +91,13 @@ public class ProjectRespositoryImpl implements ProjectRespositoryCustom {
         return statusCode != null ? project.statusCode.id.eq(statusCode) : null;
     }
 
-    private BooleanExpression techCodesEq(CodeDetail techCodes){
-        return techCodes != null ? projectTechCode.techCode.eq(techCodes) : null;
+    private BooleanExpression techCodesEq(Integer techCodes){
+        return techCodes != null ? project.id.in(
+                JPAExpressions.select(projectTechCode.project.id)
+                        .from(projectTechCode)
+                        .where(projectTechCode
+                                .techCode.id.eq(techCodes)
+                        )
+        ) : Expressions.asBoolean(true).isTrue();
     }
 }

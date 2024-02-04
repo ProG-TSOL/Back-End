@@ -53,6 +53,7 @@ public class ProjectService {
         if (file != null){
             projectImgUrl = s3Uploader.saveUploadFile(file);
             projectImgUrl = s3Uploader.getFilePath(projectImgUrl);
+            log.info("{]", projectImgUrl);
         }
 
         //프로젝트 상태 코드 (프로젝트 생성시 모집중을 기본값으로 입력)
@@ -102,16 +103,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public Page<ProjectDto.SimpleResponse> getProjects(String keyword, Integer techCodes, Integer statusCode, String sort, Pageable pageable) {
-        CodeDetail tech = null;
-
-        if(techCodes != null){
-             tech = codeDetailRepository.findById(techCodes).orElseThrow(() ->new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-        }
-
-        Page<Project> projects = projectRespository.getProject(keyword, tech, statusCode, PageRequest.of(pageable.getPageNumber(),
-                pageable.getPageSize(), Sort.by("createdAt").descending()));
-
+    public Page<ProjectDto.SimpleResponse> getProjects(String keyword, Integer techCodes, Integer statusCode, Pageable pageable) {
+        Page<Project> projects = projectRespository.getProject(keyword, techCodes, statusCode,
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending()));
+        log.info("페이징 정보 {}", PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending()));
         Page<ProjectDto.SimpleResponse> result = projectMapper.entityToSimpleResponse(projects);
 
         return result;

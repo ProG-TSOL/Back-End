@@ -37,9 +37,14 @@ public class AttendanceLog extends BaseEntity {
     private LocalDateTime endAt;
 
     @Builder
-    private AttendanceLog(Project project, LocalDateTime startAt, LocalDateTime endAt) {
+    private AttendanceLog(Member member, Project project, LocalDateTime startAt, LocalDateTime endAt) {
+        this.member = member;
         this.project = project;
         this.startAt = startAt;
+        this.endAt = endAt;
+    }
+
+    public void addEndAt(LocalDateTime endAt) {
         this.endAt = endAt;
     }
 }

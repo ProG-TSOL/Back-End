@@ -7,12 +7,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.DynamicInsert;
 
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"project", "member"})
+@DynamicInsert
 @Table(name = "board")
 public class Board extends DeleteEntity {
     @Id
@@ -51,4 +53,23 @@ public class Board extends DeleteEntity {
         this.project = project;
         this.member = member;
     }
+
+    public void update(String title, String content, Boolean isNotice) {
+        this.title = title;
+        this.content = content;
+        this.isNotice = isNotice;
+    }
+
+    public void addViewCnt() {
+        if (this.viewCnt == null) {
+            this.viewCnt = 1;
+            return;
+        }
+        this.viewCnt++;
+    }
+
+    public void changeNotice() {
+        this.isNotice = !this.isNotice;
+    }
+
 }

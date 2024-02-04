@@ -27,10 +27,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Log4j2
 @Configuration
@@ -47,6 +47,10 @@ public class SecurityConfig {
 
     private final MemberRepository memberRepository;
 
+    private final String[] ALLOWED_MEMBER_URL = {"/members/login", "/members/sign-up", "/members/nickName-validation-check/{nickname}"
+            , "/members/email-verification", "/members/email-verification-confirm"
+            , "/members/profile/{email}", "/members/detail-profile/{email}"};
+
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
 
@@ -56,11 +60,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request ->
-                request.requestMatchers("/members/**").permitAll()
+                request.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                        .requestMatchers(ALLOWED_MEMBER_URL).permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout
                         .logoutUrl("/members/logout")
-                        .logoutUrl("/members/delete-member")
+                        .logoutUrl("/members/withdrawal-member")
                         .addLogoutHandler(jwtLogoutHandler())
                         .logoutSuccessHandler(jwtLogoutSuccessHandler()));
 
@@ -75,9 +80,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Set-Cookie"));
+        configuration.setExposedHeaders(Arrays.asList("Content-Type", "accessToken","Set-Cookie"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

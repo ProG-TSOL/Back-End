@@ -5,13 +5,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"roles"})
 @Table(name = "member")
 public class Member extends DeleteEntity {
     @Id
@@ -31,10 +32,6 @@ public class Member extends DeleteEntity {
     @Enumerated(EnumType.STRING)
     @Comment("소셜로그인 사이트")
     private Provider provider;
-
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.LAZY)
-    private Set<Role> roles = new HashSet<>();
 
     @Column(length = 30)
     @Comment("이름")
@@ -57,19 +54,33 @@ public class Member extends DeleteEntity {
     private String gitId;
 
     @Column(length = 255)
+    @Comment("원래 이미지 이름")
+    private String originImg;
+
+    @Column(length = 255)
     @Comment("이미지주소")
     private String imgUrl;
 
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST , fetch = FetchType.LAZY)
+    private List<MemberTech> techs = new ArrayList<>();
+
     @Builder
-    private Member(String email, String password, Provider provider, String name, String nickname, String description, String gitEmail, String gitId, String imgUrl) {
+    public Member(String email, String password, String name, String nickname) {
         this.email = email;
         this.password = password;
-        this.provider = provider;
+        this.name = name;
+        this.nickname = nickname;
+    }
+
+    public void updateProfile(String name, String nickname, String description, String originImg, String imgUrl) {
         this.name = name;
         this.nickname = nickname;
         this.description = description;
-        this.gitEmail = gitEmail;
-        this.gitId = gitId;
+        this.originImg = originImg;
         this.imgUrl = imgUrl;
     }
 
@@ -77,17 +88,23 @@ public class Member extends DeleteEntity {
         this.password = password;
     }
 
+    public void addProvider(Provider provider) {
+        this.provider = provider;
+    }
+
     public void addRole(Role role) {
         this.roles.add(role);
     }
 
-    public void addProvider(Provider provider) {
-        this.provider = provider;
+    public void changeTechs(List<MemberTech> techs) {
+        this.techs = techs;
     }
 
     @Override
     public void deleteData() {
         super.deleteData();
+        this.roles = null;
         this.nickname = "알 수 없음";
     }
+
 }

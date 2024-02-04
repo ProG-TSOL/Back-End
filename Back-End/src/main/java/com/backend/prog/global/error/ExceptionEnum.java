@@ -27,13 +27,15 @@ public enum ExceptionEnum {
     LOGIN_FAILED(HttpStatus.BAD_REQUEST, "CE1101", Message.LOGIN_FAILED),
     ALREADY_EXIST_EMAIL(HttpStatus.CONFLICT, "CE1102", Message.ALREADY_EXIST_EMAIL),
     ALREADY_EXIST_NICKNAME(HttpStatus.CONFLICT, "CE1103", Message.ALREADY_EXIST_NICKNAME),
-    MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "CE1104", Message.MEMBER_NOT_FOUND),
-    FAIL_AUTH_PASSWORD(HttpStatus.BAD_REQUEST, "CE1105", Message.FAIL_AUTH_PASSWORD),
+    PROHIBITED_NICKNAME(HttpStatus.BAD_REQUEST, "CE1104", Message.PROHIBITED_NICKNAME),
+    MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "CE1105", Message.MEMBER_NOT_FOUND),
+    FAIL_AUTH_PASSWORD(HttpStatus.BAD_REQUEST, "CE1106", Message.FAIL_AUTH_PASSWORD),
+    NOT_MATCH_CODE(HttpStatus.BAD_REQUEST, "CE1107", Message.NOT_MATCH_CODE),
 
     //토큰 관련 오류: 1200번
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "CE1200", Message.INVALID_ACCESS_TOKEN),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "CE1201", Message.INVALID_REFRESH_TOKEN),
-    EXPIRED_REFRESH_JWT(HttpStatus.FORBIDDEN, "CE1202", Message.EXPIRED_REFRESH_JWT),
+    EXPIRED_REFRESH_JWT(HttpStatus.UNAUTHORIZED, "CE1202", Message.EXPIRED_REFRESH_JWT),
 
     //프로젝트 관련 오류 : 1300번
     DATA_CANNOT_ADD(HttpStatus.BAD_REQUEST, "CE1300", Message.DATA_CANNOT_ADD),
@@ -43,7 +45,10 @@ public enum ExceptionEnum {
     AUTHORITY_NOT_HAVE(HttpStatus.BAD_REQUEST, "CE1304", Message.AUTHORITY_NOT_HAVE),
     ALREADY_EXIST_Like(HttpStatus.CONFLICT, "CE1305", Message.ALREADY_EXIST_Like),
     ALREADY_EXIST_START(HttpStatus.CONFLICT, "CE1305", Message.ALREADY_EXIST_START),
-    ALREADY_EXIST_END(HttpStatus.CONFLICT, "CE1305", Message.ALREADY_EXIST_END);
+    ALREADY_EXIST_END(HttpStatus.CONFLICT, "CE1306", Message.ALREADY_EXIST_END),
+    ALREADY_EXIST_STARTAT(HttpStatus.BAD_REQUEST, "CE1307", Message.ALREADY_EXIST_STARTAT),
+    ALREADY_EXIST_ENTAT(HttpStatus.BAD_REQUEST, "CE1308", Message.ALREADY_EXIST_ENTAT),
+    ONLY_REGISTER_THREE(HttpStatus.BAD_REQUEST, "CE1309", Message.ONLY_REGISTER_THREE);
 
     private final HttpStatus status;
     private final String code;
@@ -68,8 +73,10 @@ public enum ExceptionEnum {
         String LOGIN_FAILED = "아이디나 비밀번호를 확인해 주세요";
         String ALREADY_EXIST_EMAIL = "이미 존재하는 이메일입니다.";
         String ALREADY_EXIST_NICKNAME = "이미 존재하는 닉네임입니다.";
+        String PROHIBITED_NICKNAME = "사용이 금지된 닉네임입니다.";
         String MEMBER_NOT_FOUND = "존재하지 않는 회원입니다.";
         String FAIL_AUTH_PASSWORD = "비밀번호가 틀렸습니다.";
+        String NOT_MATCH_CODE = "인증번호가 일치하지 않습니다.";
 
         String INVALID_ACCESS_TOKEN = "유효하지 않은 토큰입니다.";
         String EXPIRED_REFRESH_JWT = "만료된 토큰입니다.";
@@ -83,5 +90,8 @@ public enum ExceptionEnum {
         String ALREADY_EXIST_Like = "이미 좋아요를 누른 멤버입니다.";
         String ALREADY_EXIST_START = "이미 시작된 프로젝트 입니다.";
         String ALREADY_EXIST_END = "이미 종료된 프로젝트 입니다.";
+        String ALREADY_EXIST_STARTAT = "이미 출근 상태입니다.";
+        String ALREADY_EXIST_ENTAT = "퇴근을 하려면 출근 상태여야 합니다.";
+        String ONLY_REGISTER_THREE = "3개 이하의 액션만 등록할 수 있습니다.";
     }
 }

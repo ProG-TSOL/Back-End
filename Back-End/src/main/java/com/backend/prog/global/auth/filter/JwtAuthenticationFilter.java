@@ -28,7 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] EXCEPT_URL = {"/members", "/login", "/join"};
+    private static final String[] EXCEPT_URL = {"/members/login", "/members/sign-up", "/members/nickName-validation-check/"
+            , "/members/email-verification", "/members/email-verification-confirm"
+            , "/members/profile/", "/members/detail-profile/"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Integer id = (Integer) claim.get("id");
 
-            List<String> authorities = ((List<String>) claim.get("authorities"));
+            List<String> authorities = (List<String>) claim.get("authorities");
 
             setAuthenticatedUser(id, authorities);
         } catch (ExpiredJwtException expiredJwtException) {

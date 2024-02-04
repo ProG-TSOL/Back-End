@@ -13,8 +13,13 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
     @Query("select m from Member m where m.email = :email")
     Optional<Member> getWithRoles(String email);
 
-    Optional<Member> findByNickname(String nickName);
+    Optional<Member> findByNickname(String nickname);
+
+    Optional<Member> findByEmail(String email);
 
     @Query("select m from Member m where m.id = :id and m.isDeleted = false")
     Optional<Member> findByIdAndDeletedNot(Integer id);
+
+    @Query("select m from Member m where m.email = :email and m.isDeleted = false")
+    Optional<Member> findByEmailAndDeletedNot(String email);
 }

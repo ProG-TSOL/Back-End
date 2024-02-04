@@ -50,10 +50,9 @@ public class ProjectController {
     public CommonApiResponse<?> getProjects(@RequestParam(name = "keyword", required = false) String keyword,
                                             @RequestParam(name = "techCodes", required = false) Integer techCodes,
                                             @RequestParam(name = "statusCode", required = false) Integer statusCode,
-                                            @RequestParam(name = "sort", required = false) String sort,
                                             @PageableDefault(page = 0, size = 20) Pageable pageable) {
 
-        Page<ProjectDto.SimpleResponse> response = projectService.getProjects(keyword, techCodes, statusCode, sort, pageable);
+        Page<ProjectDto.SimpleResponse> response = projectService.getProjects(keyword, techCodes, statusCode, pageable);
 
         return CommonApiResponse.builder()
                 .status(HttpStatus.OK)

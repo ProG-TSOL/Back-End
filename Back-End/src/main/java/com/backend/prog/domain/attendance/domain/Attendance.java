@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -42,5 +43,9 @@ public class Attendance extends BaseEntity {
         this.member = member;
         this.workingDay = workingDay;
         this.workingTime = workingTime;
+    }
+
+    public void plusWorkingTime(Duration workTimes) {
+        this.workingTime.plus(workTimes);
     }
 }

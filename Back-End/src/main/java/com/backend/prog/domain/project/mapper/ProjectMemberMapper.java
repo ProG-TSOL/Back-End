@@ -15,7 +15,7 @@ public class ProjectMemberMapper {
         return projectMember.stream().map(pm -> ProjectMemberDto.Response.builder()
                         .member(MemberDto.Response.builder()
                                 .id(pm.getMember().getId())
-                                .nickName(pm.getMember().getNickname())
+                                .nickname(pm.getMember().getNickname())
                                 .imgUrl(pm.getMember().getImgUrl())
                                 .build()
                         )

@@ -51,4 +51,8 @@ public class Retrospect extends BaseEntity {
         this.week = week;
         this.content = content;
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

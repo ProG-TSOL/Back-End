@@ -4,9 +4,7 @@ import com.backend.prog.domain.board.dao.BoardImgRepository;
 import com.backend.prog.domain.board.dao.BoardRepository;
 import com.backend.prog.domain.board.domain.Board;
 import com.backend.prog.domain.board.domain.BoardImage;
-import com.backend.prog.domain.board.dto.BoardDetailResponse;
-import com.backend.prog.domain.board.dto.BoardListReponse;
-import com.backend.prog.domain.board.dto.BoardSaveRequest;
+import com.backend.prog.domain.board.dto.*;
 import com.backend.prog.domain.member.dao.MemberRepository;
 import com.backend.prog.domain.member.domain.Member;
 import com.backend.prog.domain.project.dao.ProjectRespository;
@@ -17,6 +15,8 @@ import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +28,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 @Log4j2
 @RequiredArgsConstructor
-public class BoardServiceImpl implements BoardService{
+public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardImgRepository boardImgRepository;
@@ -38,6 +38,7 @@ public class BoardServiceImpl implements BoardService{
     private final ModelMapper mapper;
     private final S3Uploader s3Uploader;
 
+    private final int PAGE_SIZE = 15;
 
     @Override
     @Transactional
@@ -56,53 +57,137 @@ public class BoardServiceImpl implements BoardService{
                 .member(member)
                 .build();
         Board saveBoard = boardRepository.save(entity);
-        // 2. 파일 저장
-        List<String> fileUrls;
-        if (files != null && !files.isEmpty()) {
-            fileUrls = new ArrayList<>();
 
-            files.forEach(file -> {
+        saveFileImages(files, saveBoard);
+    }
+
+    /**
+     * 이미지 파일 저장
+     */
+    @Transactional
+    protected void saveFileImages(List<MultipartFile> files, Board saveBoard) {
+        // 1. 파일 존재 체크
+        if (files == null) {
+            return;
+        }
+        boolean isEmpty = files.stream()
+                .anyMatch(MultipartFile::isEmpty);
+        if (isEmpty) {
+            return;
+        }
+
+        // 2. 파일 저장
+        List<String> fileUrls = new ArrayList<>();
+                    files.forEach(file -> {
                 String fileName = s3Uploader.saveUploadFile(file);
                 // 벌크 insert를 위해 url list 저장
                 String filePath = s3Uploader.getFilePath(fileName);
-//                log.info("■■■■■ filePath : {} ■■■■■", filePath);
+//                log.debug("■■■■■ filePath : {} ■■■■■", filePath);
                 fileUrls.add(filePath);
             });
-        } else {
-            fileUrls = null;
+
+        List<BoardImage> imgList = fileUrls.stream()
+                .map(url -> BoardImage.builder()
+                        .board(saveBoard)
+                        .imgUrl(url)
+                        .build())
+                .toList();
+
+        boardImgRepository.saveAll(imgList);
+    }
+
+    @Override
+    @Transactional
+    public void modifyBoard(Long boardId, BoardModifyRequest request, List<MultipartFile> files) {
+        // 1.게시글 수정
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        board.update(request.title(), request.content(), request.isNotice());
+
+        // 2.게시글 이미지 수정, 이미지가 있으면 삭제후 저장
+        List<BoardImage> images = boardImgRepository.findAllByBoard(board);
+        if (!images.isEmpty()) {
+            boardImgRepository.deleteAll(images);
         }
 
-        if (fileUrls != null) {
-            // 3. 파일 저장 경로 저장
-            List<BoardImage> imgList = fileUrls.stream()
-                    .map(url -> BoardImage.builder()
-                            .board(saveBoard)
-                            .imgUrl(url)
-                            .build())
-                    .toList();
+        saveFileImages(files, board);
+    }
 
-            boardImgRepository.saveAll(imgList);
+    @Override
+    @Transactional
+    public void removeBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        board.deleteData();
+    }
+
+    @Override
+    public BoardListReponse getNoticeBoard(Long projectId) {
+        Board board = boardRepository.findByNotice(projectId);
+        Member member = memberRepository.findById(board.getMember().getId())
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        return new BoardListReponse().toDto(member, board);
+    }
+
+    @Override
+    public BoardSliceResponse getBoardList(Long projectId, Long lastBoardId) {
+        PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        Project project = projectRespository.findById(projectId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        Slice<Board> result = boardRepository.searchBoardList(project, pageRequest, lastBoardId);
+        List<Board> boardList = result.getContent();
+
+        // 작성자 조회
+        List<BoardListReponse> reponseList = boardList.stream()
+                .map(board -> {
+                    Member member = board.getMember();
+                    Member writer = memberRepository.findById(member.getId())
+                            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+                    return new BoardListReponse().toDto(writer, board);
+                })
+                .toList();
+
+        return new BoardSliceResponse().toDto(
+                reponseList,
+                result.hasNext(),
+                !boardList.isEmpty() ? boardList.get(boardList.size() - 1).getId() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public BoardDetailResponse getBoardDetail(Long boardId) {
+        // 1.게시글
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        // 1.1 게시글 이미지
+        List<BoardImage> images = boardImgRepository.findAllByBoard(board);
+        board.addViewCnt();
+
+        // 2.회원
+        Member member = memberRepository.findById(board.getMember().getId())
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        // TODO : service 구현체 댓글 조회 추가
+        // 3.댓글
+
+        return new BoardDetailResponse().toDto(member, board, images);
+    }
+
+    @Override
+    @Transactional
+    public void isCheckNotice(Long projectId, Long boardId) {
+        // 기존에 공지체크되어있던것은 해제
+        Board board = boardRepository.findByNotice(projectId);
+        if (board != null) {
+            board.changeNotice();
         }
-
-    }
-
-    @Override
-    public void modifyBoard() {
-
-    }
-
-    @Override
-    public void removeBoard() {
-
-    }
-
-    @Override
-    public List<BoardListReponse> getBoardList() {
-        return null;
-    }
-
-    @Override
-    public BoardDetailResponse getBoardDetail() {
-        return null;
+        // 공지 체크
+        Board result = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        result.changeNotice();
     }
 }

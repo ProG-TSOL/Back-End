@@ -1,8 +1,8 @@
 package com.backend.prog.global.util;
 
-import com.backend.prog.global.auth.dao.BlackListRepository;
+import com.backend.prog.global.auth.dao.BlacklistRepository;
 import com.backend.prog.global.auth.dao.RefreshTokenRepository;
-import com.backend.prog.global.auth.domain.BlackList;
+import com.backend.prog.global.auth.domain.Blacklist;
 import com.backend.prog.global.auth.domain.RefreshToken;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -53,7 +53,7 @@ public class JwtUtil {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    private final BlackListRepository blackListRepository;
+    private final BlacklistRepository blackListRepository;
 
     public void generateAccessToken(HttpServletResponse response, Map<String, Object> claim) {
         String accessToken = Jwts.builder()
@@ -133,7 +133,7 @@ public class JwtUtil {
     }
 
     public void destroyAccessToken(String token, Integer id, Integer exp) {
-        blackListRepository.save(BlackList.builder()
+        blackListRepository.save(Blacklist.builder()
                 .id(id)
                 .accessToken(token)
                 .expiration(exp)

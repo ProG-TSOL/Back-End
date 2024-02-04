@@ -33,9 +33,14 @@ public class MemberTech extends BaseEntity {
     private Integer techLevel;
 
     @Builder
-    private MemberTech(Member member, CodeDetail techCode, Integer techLevel) {
+    private MemberTech(MemberTechId id, Member member, CodeDetail techCode, Integer techLevel) {
+        this.id = id;
         this.member = member;
         this.techCode = techCode;
+        this.techLevel = techLevel;
+    }
+
+    public void updateTechLevel(Integer techLevel) {
         this.techLevel = techLevel;
     }
 }

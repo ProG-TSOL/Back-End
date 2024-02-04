@@ -36,4 +36,8 @@ public class Action extends BaseEntity {
         this.content = content;
         this.week = week;
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

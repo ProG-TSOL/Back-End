@@ -1,0 +1,243 @@
+html {
+  --purple50: #663399;
+  --gray0: #f8f8f8;
+  --main-color: #4B33E3;
+  --main-color20: rgba(75, 51, 227, 0.18);
+  --main-color30: rgba(75, 51, 227, 0.3);
+  --sub-color: #EBE9FC;
+  --gray100: #333236;
+  --size: 2.4rem;
+}
+
+.main-container {
+  height: calc(100vh - 64px);
+
+  > :first-child {
+    height: 40%;
+  }
+
+}
+
+.main-h1 {
+  font-weight: 600;
+  line-height: 6rem;
+  font-size: 3.8rem;
+  text-align: center;
+  letter-spacing: -.03rem;
+  color: var(--gray100);
+}
+
+// 검색바
+.search-bar-box {
+  position: relative;
+  width: 32.2rem;
+  height: 5.5rem;
+  border: 0.6rem solid var(--main-color20);
+  border-radius: 8.5rem;
+
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+  background-color: transparent;
+
+  svg {
+    width: var(--size, 2rem);
+    height: var(--size, 2rem);
+    transition: all .2s ease-in-out;
+    color: var(--main-color);
+  }
+
+  > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1.7rem 3rem 1.7rem 2rem;
+    gap: 1.5rem;
+    width: 31rem;
+    height: 4.4rem;
+    background: var(--gray0);
+    border: 0.2rem solid var(--main-color);
+    border-radius: 8.5rem;
+
+    > span {
+      --color: var(--purple70);
+      display: inline-block;
+      position: relative;
+      line-height: 0;
+    }
+  }
+
+  input {
+    background-color: var(--gray0);
+  }
+}
+
+// 검색바 input
+.search-input {
+  &:focus {
+    outline: none;
+  }
+
+  font-size: 20px;
+  line-height: 3rem;
+  font-weight: 500;
+
+  border: none;
+  color: var(--gray80);
+  caret-color: var(--gray80);
+  width: 100%;
+}
+
+// 프로젝트 캐로셀 컨테이너
+.project-container {
+  margin: 0 auto;
+  width: 75%;
+
+  > :first-child {
+    position: relative;
+  }
+
+  // 캐로셀 버튼
+  .carousel-prev {
+    right: 50px;
+  }
+
+  .carousel-next {
+    right: 18px;
+  }
+
+  // 캐로셀 버튼 공통
+  .carousel-btn {
+    position: absolute;
+    top: -18%;
+    border: 1px solid #d3d3d3; /* 기존의 테두리 제거 */
+    border-radius: 50%; /* 동그란 테두리 생성 */
+    background-color: white; /* 배경색을 옅은 회색으로 설정 */
+    width: 30px; /* 버튼의 가로 너비 */
+    height: 30px; /* 버튼의 세로 너비 */
+    cursor: pointer; /* 마우스\ 커서를 손가락 모양으로 변경 */
+    color: #9f9f9f;
+
+    > span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    :hover {
+      background-color: gray;
+    }
+  }
+
+  .project-carousel {
+    //display: flex;
+    overflow: hidden;
+    transition: transform 0.5s ease-out; /* transform 속성에 0.5초 동안의 부드러운 변화를 적용 */
+    transform: translateX(-100%);
+  }
+
+  // 프로젝트 모집글 박스
+  .project-box {
+    outline: none;
+    //width: 324px;
+    width: 25%;
+
+    > div {
+      display: flex;
+      align-self: stretch;
+      width: 100%;
+      cursor: pointer;
+    }
+  }
+}
+
+.project-card {
+  width: 100%;
+  padding: 20px 25px;
+  gap: 10px;
+  border-radius: 20px;
+  margin: 0px 18px;
+  //border: 2px solid rgb(209, 209, 209);
+  border: 2px solid var(--main-color30);
+  background: rgb(255, 255, 255);
+
+  > h1 {
+    font-weight: 600;
+    margin: 10px 0px 0px;
+    color: rgb(0, 0, 0);
+    font-size: 18px;
+    font-style: normal;
+    line-height: 140%;
+    letter-spacing: -1px;
+    min-height: 50px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    word-break: break-all;
+    overflow: hidden;
+  }
+}
+
+.project-board-h3 {
+  color: rgb(0, 0, 0);
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: -0.78px;
+  margin: 0px 0px 24px;
+}
+
+.tag-box {
+  display: flex;
+  height: 26px;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  align-items: center;
+
+  :nth-child(1) {
+    font-weight: 800;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -.04em;
+  }
+
+  :nth-child(2) {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: -0.56px;
+  }
+}
+
+// 모집중
+.recruiting {
+  border: 1px solid rgb(234, 114, 111);
+  color: rgb(234, 114, 111);
+}
+
+// 모집완료
+.recruitment-completed {
+  border: 1px solid rgb(111, 140, 234);
+  color: rgb(20, 71, 236);
+}
+
+.project-tag {
+  border-radius: 20px;
+  padding: 4px 12px;
+  background: #efefef;
+  color: #656565;
+}
+
+.dead-line {
+  color: rgb(153, 153, 153);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  margin-top: 20px;
+}

@@ -1,0 +1,60 @@
+.test {
+    background-color: rgba(64, 191, 64, 0.56);
+}
+
+@keyframes fade-in {
+    50% {
+        opacity: 0;
+    }
+    0%, 100% {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fade-in 3s infinite;
+    /*animation-iteration-count: infinite;*/
+}
+
+.main-card-box {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin: 20px;
+    text-align: center;
+}
+
+.carousel-left-btn {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    cursor: pointer;
+}
+.carousel-right-btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    cursor: pointer;
+}
+
+.project-box{
+    outline: none;
+    width: 324px;
+    margin: 0px 12px;
+}
+

@@ -3,6 +3,9 @@ stages:
   - build
   - package
   - deploy
+  - frontend_build
+  - frontend_package
+  - frontend_deploy
 
 build: # JOB 이름
   # 사용될 이미지 설정
@@ -71,6 +74,23 @@ package:
   only:
     - BE
 
+frontend_package:
+  image: docker:latest
+  stage: frontend_package
+  services:
+    - docker:dind
+  before_script:
+    - echo [INFO] Packaging the frontend project
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+  script:
+    - cd Front-End
+    - docker build -t $DOCKER_REGISTRY_USER/$REACT_IMAGE_NAME .
+    - docker push $DOCKER_REGISTRY_USER/$REACT_IMAGE_NAME:latest
+  after_script:
+    - docker logout
+  only:
+    - FE # 브랜치명
+
 deploy: # JOB 이름
   image: docker:latest
   # stage 설정
@@ -96,3 +116,23 @@ deploy: # JOB 이름
   # JOB이 수행될 branch 설정 (설정된 branch에 push가 발생될 시 JOB 수행)
   only:
     - BE
+
+frontend_deploy:
+  image: docker:latest
+  stage: frontend_deploy
+  services:
+    - docker:dind
+  before_script:
+    - echo [INFO] Deploying the frontend project
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+  script:
+    - docker volume prune -f
+    - cd Front-End
+    - docker-compose down
+    - docker-compose pull
+    - docker-compose build
+    - docker-compose up -d
+  after_script:
+    - docker logout
+  only:
+    - FE

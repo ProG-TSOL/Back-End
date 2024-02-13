@@ -1,57 +1,62 @@
-import { useState } from "react";
-import FreeFeed from "../../../components/feed/FreeFeed";
-import TaskFeed from "../../../components/feed/TaskFeed";
-import { FaPlus } from "react-icons/fa6";
+import { useState, useRef, useEffect, CSSProperties } from 'react';
+import FreeFeed from '../../../components/feed/FreeFeed';
+import TaskFeed from '../../../components/feed/TaskFeed';
+import { useRequireAuth } from '../../../hooks/useRequireAuth';
 
 const FeedPage = () => {
-  const [page, setPage] = useState<string>("업무");
-  const [rotateIcon, setRotateIcon] = useState(false);
+	useRequireAuth();
 
-  const handleSectionClick = (section: string) => {
-    setPage(section);
-  };
+	const [page, setPage] = useState<string>('업무');
+	const taskButtonRef = useRef<HTMLButtonElement>(null);
+	const freeButtonRef = useRef<HTMLButtonElement>(null);
+	const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({});
 
-  const handleIconClick = () => {
-    setRotateIcon(!rotateIcon);
-  };
+	useEffect(() => {
+		const taskButton = taskButtonRef.current;
+		const freeButton = freeButtonRef.current;
 
-  const selectedButtonClass = "text-main-color border-b-4 border-main-color";
+		if (taskButton && freeButton) {
+			const newStyle: CSSProperties = {
+				left: page === '업무' ? taskButton.offsetLeft : freeButton.offsetLeft,
+				width: page === '업무' ? taskButton.offsetWidth : freeButton.offsetWidth,
+			};
+			setHighlightStyle(newStyle);
+		}
+	}, [page]);
 
-  return (
-    <div   className="relative">
-      <div className="flex justify-center items-center">
-        <button
-          className={`font-sans text-2xl mt-20 mr-40 ${
-            page === "업무" ? selectedButtonClass : ""
-          }`}
-          onClick={() => handleSectionClick("업무")}
-        >
-          업무
-        </button>
-        <button
-          className={`font-sans text-2xl mt-20 ml-40 ${
-            page === "자유" ? selectedButtonClass : ""
-          }`}
-          onClick={() => handleSectionClick("자유")}
-        >
-          자유
-        </button>
-        {/* 아이콘 버튼 및 조건부 렌더링 */}
-        <button
-          onClick={handleIconClick}
-          className={`fixed bottom-20 right-96 transform transition-transform duration-500 ${
-            rotateIcon ? "rotate-45" : "rotate-0"
-          }`}
-        >
-          <FaPlus className="size-10" />
-        </button>
-      </div>
+	const handleSectionClick = (section: string) => {
+		setPage(section);
+	};
 
-      {/* 조건부 렌더링 */}
-      {page === "업무" && <TaskFeed />}
-      {page === "자유" && <FreeFeed />}
-    </div>
-  );
+	const selectedButtonClass = 'text-main-color';
+
+	return (
+		<div className='relative'>
+			<div className='flex justify-center items-center relative mt-20'>
+				<button
+					ref={taskButtonRef}
+					className={`font-sans mb-2 text-2xl mr-40 ${page === '업무' ? selectedButtonClass : ''}`}
+					onClick={() => handleSectionClick('업무')}
+				>
+					업무
+				</button>
+				<button
+					ref={freeButtonRef}
+					className={`font-sans mb-2 text-2xl ml-40 ${page === '자유' ? selectedButtonClass : ''}`}
+					onClick={() => handleSectionClick('자유')}
+				>
+					자유
+				</button>
+				<div
+					className='absolute bottom-0 h-1 bg-main-color transition-all duration-1000'
+					style={{ left: `${highlightStyle.left}px`, width: `${highlightStyle.width}px` }}
+				></div>
+			</div>
+			{/* 조건부 렌더링 */}
+			{page === '업무' && <TaskFeed />}
+			{page === '자유' && <FreeFeed />}
+		</div>
+	);
 };
 
 export default FeedPage;

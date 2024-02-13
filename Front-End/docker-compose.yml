@@ -1,0 +1,10 @@
+version: "4"
+
+services:
+  react:
+    image: subam/prog-react:latest
+    container_name: rc
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development

@@ -5,16 +5,19 @@ import com.backend.prog.domain.board.dao.BoardRepository;
 import com.backend.prog.domain.board.domain.Board;
 import com.backend.prog.domain.board.domain.BoardImage;
 import com.backend.prog.domain.board.dto.*;
+import com.backend.prog.domain.feed.application.FeedServiceimpl;
 import com.backend.prog.domain.member.dao.MemberRepository;
 import com.backend.prog.domain.member.domain.Member;
+import com.backend.prog.domain.project.dao.ProjectMemberRespository;
 import com.backend.prog.domain.project.dao.ProjectRespository;
 import com.backend.prog.domain.project.domain.Project;
+import com.backend.prog.domain.project.domain.ProjectMember;
+import com.backend.prog.domain.project.domain.ProjectMemberId;
 import com.backend.prog.global.S3.S3Uploader;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,9 +38,10 @@ public class BoardServiceImpl implements BoardService {
     private final BoardImgRepository boardImgRepository;
     private final ProjectRespository projectRespository;
     private final MemberRepository memberRepository;
+    private final ProjectMemberRespository projectMemberRespository;
 
-    private final ModelMapper mapper;
     private final S3Uploader s3Uploader;
+    private final FeedServiceimpl feedServiceimpl;
 
     private final int PAGE_SIZE = 15;
 
@@ -59,6 +64,15 @@ public class BoardServiceImpl implements BoardService {
         Board saveBoard = boardRepository.save(entity);
 
         saveFileImages(files, saveBoard);
+
+        // 2. 피드 생성
+        Map<String, Object> feedDtoMap = Map.of(
+                "projectId", project.getId(),
+                "contentsId", entity.getId(),
+                "memberId", member.getId()
+        );
+        feedServiceimpl.makeFeedDto("Post", feedDtoMap);
+
     }
 
     /**
@@ -127,7 +141,10 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberRepository.findById(board.getMember().getId())
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        return new BoardListReponse().toDto(member, board);
+        ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        return new BoardListReponse().toDto(member, board, projectMember.getJobCode().getDetailDescription());
     }
 
     @Override
@@ -145,7 +162,11 @@ public class BoardServiceImpl implements BoardService {
                     Member member = board.getMember();
                     Member writer = memberRepository.findById(member.getId())
                             .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-                    return new BoardListReponse().toDto(writer, board);
+
+                    ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
+                            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+                    return new BoardListReponse().toDto(writer, board, projectMember.getJobCode().getDetailDescription());
                 })
                 .toList();
 
@@ -172,9 +193,11 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         // TODO : service 구현체 댓글 조회 추가
-        // 3.댓글
+        // 3.포지션
+        ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        return new BoardDetailResponse().toDto(member, board, images);
+        return new BoardDetailResponse().toDto(member, board, images, projectMember.getJobCode().getDetailDescription());
     }
 
     @Override

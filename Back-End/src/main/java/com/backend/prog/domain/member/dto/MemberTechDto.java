@@ -4,10 +4,10 @@ import lombok.Builder;
 
 public class MemberTechDto {
 
-    public record Request(Integer techCode, Integer techLevel){
+    public record Request(Integer techCode){
     }
 
     @Builder
-    public record Response(Integer id, String name, String description, String techImgUrl, Integer techLevel) {
+    public record Response(Integer id, String name, String description) {
     }
 }

@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,16 +27,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] EXCEPT_URL = {"/members/login", "/members/sign-up", "/members/nickName-validation-check/"
-            , "/members/email-verification", "/members/email-verification-confirm"
-            , "/members/profile/", "/members/detail-profile/"};
+    private static final String[] TOKEN_CHECK_EXCLUDE_PATTERNS = {"/members/login", "/members/sign-up", "/members/nickname-validation-check"
+            , "/members/email-verification", "/members/email-verification-confirm", "/members/profile/", "/members/detail-profile/", "/oauth2/authorization/", "/login/oauth2/code/"
+            , "/codes", "/codes/", "/codes/details/", "/codes/details/detail/"};
+
+    private static final String[][] TOKEN_CHECK_EXCLUDE_PATTERNS_AND_METHOD = {{"GET", "/comments"}, {"GET", "/projects"}};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
+        String method = request.getMethod();
 
-        for(String URL : EXCEPT_URL) {
-            if(path.contains(URL) && !path.contains("/change-password") && !path.contains("/delete-member")) {
+        for(String PATTERN : TOKEN_CHECK_EXCLUDE_PATTERNS) {
+            if(path.contains(PATTERN)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
+        for(String[] str : TOKEN_CHECK_EXCLUDE_PATTERNS_AND_METHOD) {
+            if(method.contains(str[0]) && path.contains(str[1])) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -52,58 +61,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             List<String> authorities = (List<String>) claim.get("authorities");
 
-            setAuthenticatedUser(id, authorities);
+            List<SimpleGrantedAuthority> authoritiesList = authorities.stream()
+                    .map(authority -> new SimpleGrantedAuthority(authority))
+                    .collect(Collectors.toList());
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(id, null, authoritiesList);
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            filterChain.doFilter(request, response);
         } catch (ExpiredJwtException expiredJwtException) {
-            reissueToken(request, response);
+            throw new CommonException(ExceptionEnum.EXPIRED_ACCESS_TOKEN);
         } catch (Exception exception) {
+            log.info(exception);
             throw new CommonException(ExceptionEnum.INVALID_ACCESS_TOKEN);
         }
-
-        filterChain.doFilter(request, response);
-    }
-
-    protected void reissueToken(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            String token = jwtUtil.extractRefreshToken(request.getCookies());
-
-            Map<String, Object> claim = jwtUtil.extractClaim(token);
-
-            Integer id = (Integer) claim.get("id");
-
-            if(!jwtUtil.existRefreshToken(id, token)) {
-                log.info(id + " " + token);
-                throw new Exception();
-            }
-
-            Integer exp = (Integer) claim.get("exp");
-            Object authorities = claim.get("authorities");
-
-            Map<String, Object> newClaim = new HashMap<>();
-
-            newClaim.put("id", id);
-            newClaim.put("authorities", authorities);
-
-            jwtUtil.generateAccessToken(response, newClaim);
-
-            if(jwtUtil.getExpiration(exp) <= 604800000) {
-                jwtUtil.generateRefreshToken(response, newClaim);
-            }
-
-            setAuthenticatedUser(id, (List<String>) authorities);
-        } catch (ExpiredJwtException e) {
-            throw new CommonException(ExceptionEnum.EXPIRED_REFRESH_JWT);
-        } catch (Exception e) {
-            throw new CommonException(ExceptionEnum.INVALID_REFRESH_TOKEN);
-        }
-    }
-
-    protected void setAuthenticatedUser(Integer id, List<String> authorities) {
-        List<SimpleGrantedAuthority> authoritiesList = authorities.stream()
-                .map(authority -> new SimpleGrantedAuthority(authority))
-                .collect(Collectors.toList());
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(id, null, authoritiesList);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

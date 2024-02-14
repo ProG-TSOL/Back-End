@@ -1,6 +1,7 @@
 package com.backend.prog.domain.retrospect.application;
 
 
+import com.backend.prog.domain.feed.application.FeedServiceimpl;
 import com.backend.prog.domain.manager.dao.CodeDetailRepository;
 import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.member.dao.MemberRepository;
@@ -16,7 +17,6 @@ import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,14 +28,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Log4j2
 @RequiredArgsConstructor
-public class RetrospectServiceImpl implements RetrospectService{
+public class RetrospectServiceImpl implements RetrospectService {
 
     private final RetrospectRepository retrospectRepository;
     private final ProjectRespository projectRespository;
     private final MemberRepository memberRepository;
     private final CodeDetailRepository codeDetailRepository;
 
-    private final ModelMapper mapper;
+    private final FeedServiceimpl feedServiceimpl;
 
     @Override
     @Transactional
@@ -48,7 +48,7 @@ public class RetrospectServiceImpl implements RetrospectService{
         CodeDetail kptCode = codeDetailRepository.findById(request.kptCode())
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        // 회고 저장
+        // 1. 회고 저장
         Retrospect entity = Retrospect.builder()
                 .project(project)
                 .member(member)
@@ -57,6 +57,14 @@ public class RetrospectServiceImpl implements RetrospectService{
                 .content(request.content())
                 .build();
         retrospectRepository.save(entity);
+
+        // 2. 피드 생성
+        Map<String, Object> feedDtoMap = Map.of(
+                "projectId", project.getId(),
+                "contentsId", entity.getId(),
+                "memberId", member.getId()
+        );
+        feedServiceimpl.makeFeedDto("Retrospect", feedDtoMap);
     }
 
     @Override

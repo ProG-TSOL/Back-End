@@ -83,8 +83,8 @@ public class AdditionalService {
         ProjectMemberId projectMemberId = new ProjectMemberId(additional.getProject().getId(), memberId);
         ProjectMember projectMember = projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE));
 
-        String imgUrl = "";
 
+        String imgUrl = "";
         if (file != null) {
             imgUrl = s3Uploader.saveUploadFile(file);
             imgUrl = s3Uploader.getFilePath(imgUrl);

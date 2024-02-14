@@ -1,16 +1,19 @@
 package com.backend.prog.domain.project.application;
 
+import com.backend.prog.domain.manager.application.CodeCommonService;
 import com.backend.prog.domain.manager.dao.CodeDetailRepository;
 import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.member.application.MemberService;
 import com.backend.prog.domain.member.dao.MemberRepository;
 import com.backend.prog.domain.member.domain.Member;
-import com.backend.prog.domain.project.dao.LikeRepository;
-import com.backend.prog.domain.project.dao.ProjectMemberRespository;
-import com.backend.prog.domain.project.dao.ProjectRespository;
+import com.backend.prog.domain.project.dao.*;
 import com.backend.prog.domain.project.domain.*;
+import com.backend.prog.domain.project.dto.MyProjectResponse;
 import com.backend.prog.domain.project.dto.ProjectDto;
+import com.backend.prog.domain.project.dto.ProjectHomeMemberResponse;
+import com.backend.prog.domain.project.dto.ProjectHomeResponse;
 import com.backend.prog.domain.project.mapper.ProjectMapper;
+import com.backend.prog.domain.work.dao.WorkRepository;
 import com.backend.prog.global.S3.S3Uploader;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,19 +49,24 @@ public class ProjectService {
     private final MemberService memberService; //지우고 service 거치는거 레포로 변경해야됨
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final ApplicationStatusRepository applicationStatusRepository;
+    private final ProjectTotalRespository projectTotalRespository;
+
+    private final WorkRepository workRepository;
+    private final CodeCommonService codeCommonService;
 
     @Transactional
     public Project createProject(Integer memberId, ProjectDto.Post projectDto, MultipartFile file) {
         String projectImgUrl = "";
 
-        if (file != null){
+        if (file != null) {
             projectImgUrl = s3Uploader.saveUploadFile(file);
             projectImgUrl = s3Uploader.getFilePath(projectImgUrl);
             log.info("{]", projectImgUrl);
         }
 
         //프로젝트 상태 코드 (프로젝트 생성시 모집중을 기본값으로 입력)
-        CodeDetail statusCode = codeDetailRepository.findById(19).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        CodeDetail statusCode = codeDetailRepository.findById(50).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         Project project = new Project(projectDto, projectImgUrl, statusCode);
 
@@ -85,9 +94,9 @@ public class ProjectService {
                     projectTotalPost.total(), projectTotalPost.current());
 
             //팀장 포지션 저장
-            if(projectTotalPost.current() > 0){
+            if (projectTotalPost.current() > 0) {
                 //팀장 코드 가져오기
-                CodeDetail plCode =  codeDetailRepository.findById(17).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+                CodeDetail plCode = codeDetailRepository.findById(48).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
                 Member pl = memberService.getMember(memberId);
                 ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
                 ProjectMember projectMember = new ProjectMember(projectMemberId, project, pl, detail, plCode);
@@ -103,46 +112,60 @@ public class ProjectService {
     }
 
     @Transactional
-    public Page<ProjectDto.SimpleResponse> getProjects(String keyword, Integer techCodes, Integer statusCode, Pageable pageable) {
+    public Page<ProjectDto.SimpleResponse> getProjects(Integer memberId, String keyword, Integer techCodes, Integer statusCode, Pageable pageable) {
         Page<Project> projects = projectRespository.getProject(keyword, techCodes, statusCode,
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending()));
         log.info("페이징 정보 {}", PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending()));
-        Page<ProjectDto.SimpleResponse> result = projectMapper.entityToSimpleResponse(projects);
+        Page<ProjectDto.SimpleResponse> result = projectMapper.entityToSimpleResponse(projects, memberId);
 
         return result;
     }
 
+    @Transactional
     public ProjectDto.Response getProject(Long id, Integer memberId) {
         Project project = projectRespository.findById(id).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        project.addView();
 
         ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
 
         Optional<ProjectMember> projectMember = projectMemberService.getProjectMember(projectMemberId);
 
         //프로젝트 멤버가 있으면 이미 프로젝트에 존재하는 유저
-        if (projectMember.isPresent()){
-            return projectMapper.entityToResponse(project, true);
-        }else {
-            return projectMapper.entityToResponse(project, false);
+        if (projectMember.isPresent()) {
+            return projectMapper.entityToResponse(project, memberId, true, null);
         }
+
+        Optional<ApplicationStatus> applicationStatus = applicationStatusRepository.findById(projectMemberId);
+
+        if (applicationStatus.isPresent()) {
+            return projectMapper.entityToResponse(project, memberId, false, applicationStatus.get());
+        }
+
+        return projectMapper.entityToResponse(project, memberId, false, null);
     }
 
     @Transactional
     public ProjectDto.Response updateProject(Long id, ProjectDto.Patch patch, MultipartFile file, Integer memberId) {
         Project project = projectRespository.findById(id).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
+        //삭제된 프로젝트면 에러
+        if (project.isDeleted()) {
+            throw new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST);
+        }
+
         ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
 
         ProjectMember projectMember = projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-        
+
         //요청한 멤버가 팀장인지 검사
-        if(projectMember.getRoleCode().getId() != 17){
+        if (projectMember.getRoleCode().getId() != 48) {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 
         String projectImgUrl = "";
 
-        if (file != null){
+        if (file != null) {
             projectImgUrl = s3Uploader.saveUploadFile(file);
             projectImgUrl = s3Uploader.getFilePath(projectImgUrl);
         }
@@ -152,8 +175,10 @@ public class ProjectService {
         // 기술스택 코드 디테일 조회해서 프로젝트에 추가(이미있는 값이면 addTechCode에서 쳐냄
         patch.totechList().forEach(tech -> {
             CodeDetail techCode = codeDetailRepository.findById(tech.techCode()).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
             ProjectTechCode projectTechCode = new ProjectTechCode(project, techCode);
-            if(!project.hasTechCode(projectTechCode)){
+
+            if (!project.hasTechCode(projectTechCode)) {
                 projectTechCodeService.updateProjectTechCode(projectTechCode);
                 project.addTech(projectTechCode);
             }
@@ -167,13 +192,14 @@ public class ProjectService {
 
             Optional<ProjectTotal> findTotal = projectTotalService.getTotal(ptId);
             //이미 존재하는 포지션 -> total, current만 수정해서 save
-            if (findTotal.isPresent()){
+            if (findTotal.isPresent()) {
                 ProjectTotal projectTotal = findTotal.get();
+                if (projectTotal.getTotal() < projectTotal.getCurrent()) {
+                    throw new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST);
+                }
                 projectTotal.setTotal(total.total());
-                projectTotal.setCurrent(total.current());
-
                 projectTotalService.updateProjectTotal(projectTotal);
-            }else{ // 새로운 포지션 ProjectTotal 만들어서 save
+            } else { // 새로운 포지션 ProjectTotal 만들어서 save
                 CodeDetail detail = codeDetailRepository.findById(total.jobCode()).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
                 ProjectTotal projectTotal = new ProjectTotal(project, detail, total.total(), total.current());
                 projectTotalService.updateProjectTotal(projectTotal);
@@ -183,7 +209,7 @@ public class ProjectService {
 
         projectRespository.save(project);
 
-        return projectMapper.entityToResponse(project, true);
+        return projectMapper.entityToResponse(project, memberId, true, null);
     }
 
     public Project deleteProject(Long projectId, Integer memberId) {
@@ -194,7 +220,7 @@ public class ProjectService {
         ProjectMember projectMember = projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //요청한 멤버가 팀장인지 검사
-        if(projectMember.getRoleCode().getId() != 17){
+        if (projectMember.getRoleCode().getId() != 48) {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
         project.setDeleted(true);
@@ -209,16 +235,17 @@ public class ProjectService {
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
         Optional<ProjectMember> projectMember = projectMemberRespository.findById(projectMemberId);
 
-        if(!projectMember.isPresent() || !projectMember.get().getRoleCode().getId().equals(17)){
+        if (!projectMember.isPresent() || !projectMember.get().getRoleCode().getId().equals(48)) {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 
         Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-        
+
         //이미 시작된 프로젝트인지 확인
-        if (project.getStartDay() == null){
-            project.startProject();
-        }else {
+        if (project.getStartDay() == null) {
+            CodeDetail start = codeDetailRepository.findById(51).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            project.startProject(start);
+        } else {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 
@@ -231,16 +258,17 @@ public class ProjectService {
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
         Optional<ProjectMember> projectMember = projectMemberRespository.findById(projectMemberId);
 
-        if(!projectMember.isPresent() || projectMember.get().getRoleCode().getId() != 17){
+        if (!projectMember.isPresent() || projectMember.get().getRoleCode().getId() != 48) {
             throw new CommonException(ExceptionEnum.ALREADY_EXIST_START);
         }
 
         Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //이미 시작된 프로젝트인지 확인
-        if (project.getStartDay() != null || project.getEndDay() == null){
-            project.endProject();
-        }else {
+        if (project.getStartDay() != null || project.getEndDay() == null) {
+            CodeDetail end = codeDetailRepository.findById(52).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            project.endProject(end);
+        } else {
             throw new CommonException(ExceptionEnum.ALREADY_EXIST_END);
         }
 
@@ -254,15 +282,15 @@ public class ProjectService {
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 
         Optional<Like> findLike = likeRepository.findById(projectMemberId);
-        
+
         //이미 좋아요를 누른 멤버인지 검사
-        if(findLike.isPresent()){
+        if (findLike.isPresent()) {
             throw new CommonException(ExceptionEnum.ALREADY_EXIST_Like);
         }
-        
-        Project project = projectRespository.findById(projectId).orElseThrow(()-> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-        
+
         Like like = new Like(projectMemberId, project, member);
 
         //프로젝트 좋아요 수 +1
@@ -279,7 +307,7 @@ public class ProjectService {
 
         Like findLike = likeRepository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        Project project = projectRespository.findById(projectId).orElseThrow(()-> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //프로젝트 좋아요 수 -1
         project.deleteLike();
@@ -287,5 +315,91 @@ public class ProjectService {
         projectRespository.save(project);
 
         likeRepository.delete(findLike);
+    }
+
+    /**
+     * 내가 신청, 참여중인 프로젝트 목록
+     */
+    public List<MyProjectResponse> getMyProjects(Integer memberId) {
+        List<Project> list = projectRespository.findAllMyProject(memberId);
+        return list.stream()
+                .map(project -> {
+                    Integer total = getTotalParticipationProject(project.getId());
+                    Integer progress = getProgress(project.getStartDay(), project.getEndDay());
+                    return new MyProjectResponse().toDto(project, total, progress);
+                })
+                .toList();
+    }
+
+    /**
+     * 참여중인 프로젝트를 상태코드별로 조회
+     */
+    public List<MyProjectResponse> getMyProjects(Integer memberId, Integer statusCode) {
+        List<Project> list = projectRespository.findMyProjectByStatus(memberId, statusCode);
+        return list.stream()
+                .map(project -> {
+                    Integer total = getTotalParticipationProject(project.getId());
+                    Integer progress = getProgress(project.getStartDay(), project.getEndDay());
+                    return new MyProjectResponse().toDto(project, total, progress);
+                })
+                .toList();
+    }
+
+    /**
+     * 내가 신청중인 프로젝트 목록
+     */
+    public List<MyProjectResponse> getSignedMyProjects(Integer memberId) {
+        List<Project> list = projectRespository.findAllMySignedProject(memberId);
+        return list.stream()
+                .map(project -> {
+                    Integer total = getTotalParticipationProject(project.getId());
+                    Integer progress = getProgress(project.getStartDay(), project.getEndDay());
+                    return new MyProjectResponse().toDto(project, total, progress);
+                })
+                .toList();
+    }
+
+    public List<ProjectDto.HotResponse> getHotProject() {
+
+        List<Project> list = projectRespository.findHotProject();
+
+        return projectMapper.entityToHotResponse(list);
+    }
+
+    //    Current number of people participating in the project
+    public Integer getTotalParticipationProject(Long projectId) {
+        Integer result = projectTotalRespository.countCurrentByProjectId(projectId);
+        return result == null ? 0 : result;
+    }
+
+    public ProjectHomeResponse getProjectHome(Long projectId, Integer memberId) {
+        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        Integer countMyWork = workRepository.findCountMyWork(projectId, memberId);
+        Integer progress = getProgress(project.getStartDay(), project.getEndDay());
+        return new ProjectHomeResponse().toDto(project, progress, countMyWork);
+    }
+
+    public List<ProjectHomeMemberResponse> getProjectHomeMember(Long projectId) {
+        List<ProjectMember> projectMemberList = projectMemberRespository.findAllByProjectId(projectId);
+        return projectMemberList.stream()
+                .map(projectmember -> {
+                    CodeDetail jobCode = codeCommonService.getCodeDetail(projectmember.getJobCode().getId());
+                    CodeDetail roleCode = codeCommonService.getCodeDetail(projectmember.getRoleCode().getId());
+                    return new ProjectHomeMemberResponse().toDto(projectmember.getMember(), jobCode, roleCode);
+                }).toList();
+    }
+
+    /**
+     * 프로젝트 진행률 계산
+     */
+    public Integer getProgress(LocalDate startDay, LocalDate endDay) {
+        if (startDay == null || endDay == null) return 0;
+
+        LocalDate now = LocalDate.now();
+        long totalDays = ChronoUnit.DAYS.between(startDay, endDay);
+        long elapsedDays = ChronoUnit.DAYS.between(startDay, now);
+
+        int result = (int) Math.round((double) elapsedDays / totalDays * 100);
+        return Math.min(Math.max(result, 0), 100);
     }
 }

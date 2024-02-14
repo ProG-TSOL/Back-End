@@ -3,6 +3,7 @@ package com.backend.prog.domain.work.api;
 import com.backend.prog.domain.work.application.WorkService;
 import com.backend.prog.domain.work.dto.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,6 +34,11 @@ public class WorkController {
     @GetMapping("/details/{workId}")
     public WorkDetailResponse getWork(@PathVariable Long workId) {
         return workService.getWorkDetail(workId);
+    }
+
+    @GetMapping("/search/{projectId}")
+    public List<WorkListResponse> getWorkListSearchByKeyword(@PathVariable Long projectId, @NotEmpty String title) {
+        return workService.getWorkListSearchByKeyword(projectId, title);
     }
 
     @DeleteMapping("/{workId}")

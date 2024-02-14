@@ -63,12 +63,13 @@ public class CodeServiceImpl implements CodeService {
     }
 
     @Override
-    public List<CodeDetailResponse> getCodeDetailList(String codeName) {
+    public List<CodeDetailSimpleResponse> getCodeDetailList(String codeName) {
         Code code = codeRepository.findByName(codeName);
         List<CodeDetail> detailList = codeDetailRepository.findByCode(code);
         checkDataExist(detailList);
+
         return detailList.stream()
-                .map(entity -> modelMapper.map(entity, CodeDetailResponse.class))
+                .map(entity -> new CodeDetailSimpleResponse().toDto(entity))
                 .toList();
     }
 
@@ -82,21 +83,34 @@ public class CodeServiceImpl implements CodeService {
     @Override
     @Transactional
     public void saveCodeDetail(CreateCodeDetailRequest codeDetail) {
-        CodeDetail entity = modelMapper.map(codeDetail, CodeDetail.class);
-        if (codeDetailRepository.findByCodeAndDetailName(entity.getCode(), entity.getDetailName()) != null) {
+//        CodeDetail entity = modelMapper.map(codeDetail, CodeDetail.class);
+        Code code = codeRepository.findById(codeDetail.codeId())
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
+        CodeDetail detail = CodeDetail.builder()
+                .code(code)
+                .detailName(codeDetail.detailName())
+                .detailDescription(codeDetail.detailDescription())
+                .imgUrl(codeDetail.imgUrl())
+                .build();
+
+        if (codeDetailRepository.findByCodeAndDetailName(detail.getCode(), detail.getDetailName()) != null) {
             throw new CommonException(ExceptionEnum.NAME_ALREADY_EXISTS);
         }
-        codeDetailRepository.save(entity);
+
+        codeDetailRepository.save(detail);
     }
 
     @Override
     @Transactional
     public void modifyCodeDetail(UpdateCodeDetailRequest codeDetail) {
-        CodeDetail entity = modelMapper.map(codeDetail, CodeDetail.class);
+        CodeDetail entity = codeDetailRepository.findById(codeDetail.id())
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+
         Code getCode = codeDetailRepository.findById(entity.getId())
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST)).getCode();
 
-        if (codeDetailRepository.findByCodeAndDetailName(getCode, entity.getDetailName()) != null) {
+        if (codeDetailRepository.findByCodeAndDetailName(getCode, codeDetail.detailName()) != null) {
             throw new CommonException(ExceptionEnum.NAME_ALREADY_EXISTS);
         }
         entity.update(codeDetail.detailName(), codeDetail.detailDescription(), codeDetail.imgUrl(), codeDetail.isUse());

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MemberDto {
 
-    public record Post(@Email @NotNull String email
+    public record Post(@NotNull @Email String email
             , @NotNull @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$")String password
             , @NotNull @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$")String passwordCheck
             , @NotNull @Pattern(regexp = "^([A-Za-z가-힣])+") String name
@@ -18,23 +18,35 @@ public class MemberDto {
             , Provider provider) {
     }
 
-    public record ProfilePatch(@NotNull @Pattern(regexp = "^([A-Za-z가-힣])+") String name
+    public record ProfilePatch(Integer id
+            , @NotNull @Pattern(regexp = "^([A-Za-z가-힣])+") String name
             , @NotNull @Pattern(regexp = "^([A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣])+") String nickname
             , String description
             , List<MemberTechDto.Request> memberTechDtoList) {
     }
 
-    public record PasswordPatch(@NotNull @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$") String originPassword
+    public record PasswordPatch(Integer id
+            , @NotNull @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$") String originPassword
             , @NotNull @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$") String updatePassword
             , @NotNull @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$") String updatePasswordCheck) {
     }
 
-    @Builder
-    public record Response(Integer id, String nickname, String imgUrl) {
+    public record emailPost(@NotNull @Email String email) {
+    }
+
+    public record emailVerificationPost(@NotNull @Email String email, String authCode) {
+
+    }
+
+    public record nicknamePost(@NotNull @Pattern(regexp = "^([A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣])+") String nickname) {
     }
 
     @Builder
-    public record DetailResponse(Integer id, String email, Provider provider, String name, String nickname, String description, String imgUrl, List<MemberTechDto.Response> memberTechList) {
+    public record Response(Integer id, String email, String nickname, String imgUrl) {
+    }
+
+    @Builder
+    public record DetailResponse(Integer id, String email, Provider provider, String name, String nickname, String description, String imgUrl, List<MemberTechDto.Response> memberTechList, String readMe) {
     }
 
 }

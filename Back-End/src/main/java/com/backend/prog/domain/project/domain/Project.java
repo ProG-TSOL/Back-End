@@ -103,11 +103,13 @@ public class Project extends DeleteEntity implements Serializable {
         }
     }
 
-    public void startProject() {
+    public void startProject(CodeDetail start) {
+        this.statusCode = start;
         this.startDay = LocalDate.now();
     }
 
-    public void endProject() {
+    public void endProject(CodeDetail end) {
+        this.statusCode = end;
         this.endDay = LocalDate.now();
     }
 
@@ -117,5 +119,9 @@ public class Project extends DeleteEntity implements Serializable {
 
     public void deleteLike() {
         this.likeCnt -= 1;
+    }
+
+    public void addView() {
+        this.viewCnt += 1;
     }
 }

@@ -10,4 +10,9 @@ public class ApplicationStatusDto {
     public record Response(MemberDto.Response member, CodeDetailDto.SampleResponse jobCode){
 
     }
+
+    @Builder
+    public record SimpleResponse(CodeDetailDto.SampleResponse jobCode){
+
+    }
 }

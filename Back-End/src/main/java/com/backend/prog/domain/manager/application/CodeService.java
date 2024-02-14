@@ -12,7 +12,8 @@ public interface CodeService {
     void saveCode(CreateCodeRequest code);
     void modifyCode(UpdateCodeRequest code);
 
-    List<CodeDetailResponse> getCodeDetailList(String codeName);
+//    List<CodeDetailResponse> getCodeDetailList(String codeName);
+    List<CodeDetailSimpleResponse> getCodeDetailList(String codeName);
     CodeDetailResponse getCodeDetail(Integer codeId);
     void saveCodeDetail(CreateCodeDetailRequest codeDetail);
     void modifyCodeDetail(UpdateCodeDetailRequest codeDetail);

@@ -1,7 +1,6 @@
 package com.backend.prog.global.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
@@ -17,17 +16,21 @@ import java.util.Map;
 
 @Log4j2
 public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    public LoginAuthenticationFilter() {
+
+    private final ObjectMapper objectMapper;
+
+    public LoginAuthenticationFilter(ObjectMapper objectMapper) {
         super(new AntPathRequestMatcher("/members/login", "POST"));
+        this.objectMapper = objectMapper;
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
         if(request.getContentType() == null || !request.getContentType().equals("application/json")) {
             throw new AuthenticationServiceException("Content-Type not supported");
         }
 
-        Map<String, String> jsonData = new ObjectMapper().readValue(request.getInputStream(), Map.class);
+        Map<String, String> jsonData = objectMapper.readValue(request.getInputStream(), Map.class);
 
         String email = jsonData.get("email");
         String password = jsonData.get("password");

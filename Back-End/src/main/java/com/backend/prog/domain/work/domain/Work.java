@@ -13,7 +13,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@ToString(exclude = {"project", "member", "statusCode", "priorityCode", "consumerId"})
+@ToString(exclude = {"project", "producerId", "statusCode", "priorityCode", "consumerId"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "work")
 public class Work extends BaseEntity {
@@ -83,25 +83,16 @@ public class Work extends BaseEntity {
         this.endDay = endDay;
     }
 
-    public void updateWork(CodeDetail statusCode, Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
-        if (statusCode != null) {
-            this.statusCode = statusCode;
-        }
-        if (consumerId != null) {
-            this.consumerId = consumerId;
-        }
-        if (StringUtils.hasText(title)) {
-            this.title = title;
-        }
-        if (StringUtils.hasText(content)) {
-            this.content = content;
-        }
-        if (startDay != null) {
-            this.startDay = startDay;
-        }
-        if (endDay != null) {
-            this.endDay = endDay;
-        }
+    public void updateWork(CodeDetail statusCode,CodeDetail typeCode, CodeDetail priorityCode,
+                           Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
+        if (statusCode != null) {this.statusCode = statusCode;}
+        if (typeCode != null) {this.typeCode = typeCode;}
+        if (priorityCode != null) {this.priorityCode = priorityCode;}
+        if (consumerId != null) {this.consumerId = consumerId;}
+        if (StringUtils.hasText(title)) {this.title = title;}
+        if (StringUtils.hasText(content)) {this.content = content;}
+        if (startDay != null) {this.startDay = startDay;}
+        if (endDay != null) {this.endDay = endDay;}
     }
 
     public void updateWorkStatus(CodeDetail statusCode) {

@@ -1,14 +1,16 @@
 package com.backend.prog.domain.member.api;
 
-import com.backend.prog.domain.member.application.MemberServiceImpl;
+import com.backend.prog.domain.member.application.MemberService;
 import com.backend.prog.domain.member.dto.MemberDto;
-import com.backend.prog.global.common.CommonApiResponse;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,95 +24,91 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final MemberServiceImpl memberService;
+    private final MemberService memberService;
 
     @PostMapping("/sign-up")
-    public CommonApiResponse<?> signUp(@RequestBody @Valid MemberDto.Post memberDto, BindingResult bindingResult) {
+    public void signUp(@RequestBody @Valid MemberDto.Post memberDto, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
         }
 
         memberService.signUp(memberDto);
-
-       return  CommonApiResponse.builder()
-               .status(HttpStatus.CREATED)
-               .data(1)
-               .cnt(1)
-               .build();
     }
 
+    @PreAuthorize("#memberDto.id.equals(principal)")
     @PatchMapping("/update-profile")
-    public CommonApiResponse<?> updateProfile(Principal principal, @RequestPart("member") @Valid MemberDto.ProfilePatch memberDto, BindingResult bindingResult, @RequestPart(value = "file", required = false) MultipartFile file) {
+    public void updateProfile(@RequestPart("member") @Valid MemberDto.ProfilePatch memberDto, BindingResult bindingResult, @RequestPart(value = "file", required = false) MultipartFile file) {
         if(bindingResult.hasErrors()) {
             throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
         }
 
-        memberService.updateProfile(Integer.parseInt(principal.getName()), memberDto, file);
-
-        return  CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(1)
-                .cnt(1)
-                .build();
+        memberService.updateProfile(memberDto, file);
     }
 
     @GetMapping("/my-profile")
-    public CommonApiResponse<?> getMyProfile(Principal principal) {
+    public Object getMyProfile(Principal principal) {
         MemberDto.Response response = memberService.getMyProfile(Integer.valueOf(principal.getName()));
 
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(response)
-                .cnt(1)
-                .build();
+        return response;
     }
 
-    @GetMapping("/profile/{email}")
-    public CommonApiResponse<?> getProfile(@PathVariable String email) {
-        MemberDto.Response response = memberService.getProfile(email);
+    @GetMapping("/profile/{id}")
+    public Object getProfile(@PathVariable Integer id) {
+        MemberDto.Response response = memberService.getProfile(id);
 
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(response)
-                .cnt(1)
-                .build();
+        return response;
     }
 
-    @GetMapping("/detail-profile/{email}")
-    public CommonApiResponse<?> getDetailProfile(@PathVariable String email) {
-        MemberDto.DetailResponse response = memberService.getDetailProfile(email);
+    @GetMapping("/detail-profile/{id}")
+    public Object getDetailProfile(@PathVariable Integer id) {
+        MemberDto.DetailResponse response = memberService.getDetailProfile(id);
 
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(response)
-                .cnt(1)
-                .build();
+        return response;
     }
 
-    @GetMapping("/nickname-validation-check/{nickname}")
-    public CommonApiResponse<?> isUniqueNickName(@PathVariable String nickname) {
-        memberService.checkNickname(0, nickname);
-
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(nickname)
-                .cnt(1)
-                .build();
-    }
-
-    @PatchMapping("/change-password")
-    public CommonApiResponse<?> changePassword(@RequestBody @Valid MemberDto.PasswordPatch memberDto, BindingResult bindingResult, Principal principal) {
+    @PostMapping(value = {"/nickname-validation-check/{id}", "/nickname-validation-check"})
+    public void isUniqueNickName(@PathVariable(required = false) Integer id ,@RequestBody @Valid MemberDto.nicknamePost memberDto, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
         }
 
-        memberService.changePassword(Integer.valueOf(principal.getName()), memberDto);
+        memberService.checkNickname(id, memberDto.nickname());
+    }
 
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(null)
-                .cnt(1)
-                .build();
+    @PreAuthorize("#memberDto.id.equals(principal)")
+    @PatchMapping("/change-password")
+    public void changePassword(@RequestBody @Valid MemberDto.PasswordPatch memberDto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
+        }
+
+        memberService.changePassword(memberDto);
+    }
+
+    @PostMapping("/email-verification")
+    public void sendAuthCode(@RequestBody @Valid MemberDto.emailPost memberDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
+        }
+
+        memberService.sendAuthCode(memberDto.email());
+    }
+
+    @PostMapping("/email-verification-confirm")
+    public void verifyAuthCode(@RequestBody MemberDto.emailVerificationPost memberDto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
+        }
+
+        memberService.verifyAuthCode(memberDto.email(), memberDto.authCode());
+    }
+
+    @PreAuthorize("#id.equals(principal)")
+    @DeleteMapping("/withdrawal-member/{id}")
+    public void withdrawalMember(HttpServletRequest request, HttpServletResponse response, @PathVariable Integer id) {
+        memberService.withdrawalMember(request, response, id);
+
+        SecurityContextHolder.clearContext();
     }
 
     @PostMapping("/email-verification")

@@ -132,6 +132,32 @@ public class JwtUtil {
         return (int)(expTime.getTime() - current.getTime());
     }
 
+    public boolean isBlackList(String token) {
+        return blackListRepository.findByAccessToken(token).isPresent();
+    }
+
+    public boolean existRefreshToken(Integer id, String token) {
+        return refreshTokenRepository.findById(id).orElseThrow().getRefreshToken().equals(token);
+    }
+
+    public void destroyToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractRefreshToken(request.getCookies());
+
+        Map<String, Object> refreshClaim = extractClaim(refreshToken);
+
+        Integer id = (Integer) refreshClaim.get("id");
+
+        destroyRefreshToken(response, id);
+
+        String accessToken = extractAccessToken(request);
+
+        Map<String, Object> accessClaim = extractClaim(accessToken);
+
+        Integer exp = (Integer) accessClaim.get("exp");
+
+        destroyAccessToken(accessToken, id, getExpiration(exp));
+    }
+
     public void destroyAccessToken(String token, Integer id, Integer exp) {
         blackListRepository.save(Blacklist.builder()
                 .id(id)
@@ -152,13 +178,5 @@ public class JwtUtil {
                 .build();
 
         response.setHeader("Set-Cookie", cookie.toString());
-    }
-
-    public boolean isBlackList(String token) {
-        return blackListRepository.findByAccessToken(token).isPresent();
-    }
-
-    public boolean existRefreshToken(Integer id, String token) {
-        return refreshTokenRepository.findById(id).orElseThrow().getRefreshToken().equals(token);
     }
 }

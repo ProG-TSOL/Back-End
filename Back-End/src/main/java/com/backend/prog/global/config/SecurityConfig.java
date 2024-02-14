@@ -1,17 +1,19 @@
 package com.backend.prog.global.config;
 
-import com.backend.prog.domain.member.dao.MemberRepository;
-import com.backend.prog.global.auth.filter.JwtAuthenticationFilter;
-import com.backend.prog.global.auth.filter.JwtExceptionFilter;
-import com.backend.prog.global.auth.filter.LoginAuthenticationFilter;
+import com.backend.prog.global.auth.service.OAuth2MemberService;
+import com.backend.prog.global.auth.api.OAuth2Api;
+import com.backend.prog.global.auth.filter.*;
 import com.backend.prog.global.auth.handler.*;
 import com.backend.prog.global.auth.service.MemberDetailsService;
 import com.backend.prog.global.util.JwtUtil;
 import com.backend.prog.global.util.ResponseUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -45,7 +47,18 @@ public class SecurityConfig {
 
     private final MemberDetailsService memberDetailsService;
 
-    private final MemberRepository memberRepository;
+    private final Environment environment;
+
+    private final ObjectMapper objectMapper;
+
+    private final OAuth2Api oAuth2Api;
+
+    private final OAuth2MemberService oAuth2MemberService;
+
+    private static final String[] ALLOWED_PATTERNS = {"/members/login", "/members/sign-up", "/members/nickname-validation-check/**"
+            , "/members/email-verification", "/members/email-verification-confirm", "/members/profile/{email}", "/members/detail-profile/{email}"
+            , "/oauth2/authorization/{providerReg}", "/login/oauth2/code/github", "/codes", "/codes/{codename}", "/codes/details/{codename}", "/codes/details/detail/{detailCodeId}"
+            , "/codes", "/codes/{codename}", "/codes/details/{codename}", "/codes/details/detail/{detailCodeId}"};
 
     private final String[] ALLOWED_MEMBER_URL = {"/members/login", "/members/sign-up", "/members/nickName-validation-check/{nickname}"
             , "/members/email-verification", "/members/email-verification-confirm"
@@ -53,24 +66,25 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
-
         http.formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(request ->
-                request.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers(ALLOWED_MEMBER_URL).permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(request -> request.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                        .requestMatchers(ALLOWED_PATTERNS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/comments/**", "/projects/**").permitAll()
+                        .anyRequest().hasRole("USER"))
                 .logout(logout -> logout
                         .logoutUrl("/members/logout")
-                        .logoutUrl("/members/withdrawal-member")
                         .addLogoutHandler(jwtLogoutHandler())
-                        .logoutSuccessHandler(jwtLogoutSuccessHandler()));
+                        .logoutSuccessHandler(jwtLogoutSuccessHandler()))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint()).accessDeniedHandler(customAccessDeniedHandler()));
 
-        http.addFilterBefore(jwtExceptionFilter(), LogoutFilter.class);
+        http.addFilterAfter(oAuth2LoginFilter(), LogoutFilter.class);
+        http.addFilterAfter(jwtExceptionFilter(), OAuth2LoginFilter.class);
         http.addFilterBefore(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtReissueTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -81,10 +95,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Set-Cookie"));
         configuration.setExposedHeaders(Arrays.asList("Content-Type", "accessToken","Set-Cookie"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", configuration);
@@ -102,6 +117,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(memberDetailsService);
+        provider.setHideUserNotFoundExceptions(false);
         return new ProviderManager(provider);
     }
 
@@ -117,11 +133,16 @@ public class SecurityConfig {
 
     @Bean
     public LoginAuthenticationFilter loginAuthenticationFilter() {
-        LoginAuthenticationFilter loginAuthenticationFilter = new LoginAuthenticationFilter();
+        LoginAuthenticationFilter loginAuthenticationFilter = new LoginAuthenticationFilter(objectMapper);
         loginAuthenticationFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
         loginAuthenticationFilter.setAuthenticationFailureHandler(loginFailureHandler());
         loginAuthenticationFilter.setAuthenticationManager(authenticationManager());
         return loginAuthenticationFilter;
+    }
+
+    @Bean
+    public OAuth2LoginFilter oAuth2LoginFilter() {
+        return new OAuth2LoginFilter(loginSuccessHandler(), loginFailureHandler(), environment, objectMapper, oAuth2Api, oAuth2MemberService);
     }
 
     @Bean
@@ -135,13 +156,27 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtLogoutHandler jwtLogoutHandler() {
-        return new JwtLogoutHandler(jwtUtil, memberRepository);
+    public JwtReissueTokenFilter jwtReissueTokenFilter() {
+        return new JwtReissueTokenFilter(jwtUtil);
     }
 
+    @Bean
+    public JwtLogoutHandler jwtLogoutHandler() {
+        return new JwtLogoutHandler(jwtUtil);
+    }
 
     @Bean
     public JwtLogoutSuccessHandler jwtLogoutSuccessHandler() {
         return new JwtLogoutSuccessHandler();
+    }
+
+    @Bean
+    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint(responseUtil);
+    }
+
+    @Bean
+    public CustomAccessDeniedHandler customAccessDeniedHandler() {
+        return new CustomAccessDeniedHandler(responseUtil);
     }
 }

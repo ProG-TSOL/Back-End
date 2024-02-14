@@ -9,7 +9,7 @@ public interface WorkService {
     void saveWork(CreateWorkRequest workRequest);
 
     List<WorkListResponse> getWorkList(Long projectId);
-    List<WorkListResponse> getWorkListSearchByKeyword(SearchWorkRequest request);
+    List<WorkListResponse> getWorkListSearchByKeyword(Long projectId, String title);
     WorkDetailResponse getWorkDetail(Long workId);
 
     void modifyWork(Long workId, UpdateWorkRequest workRequest);

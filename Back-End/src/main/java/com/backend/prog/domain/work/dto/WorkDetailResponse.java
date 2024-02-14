@@ -1,5 +1,7 @@
 package com.backend.prog.domain.work.dto;
 
+import com.backend.prog.domain.comment.dto.CommentDto;
+import com.backend.prog.domain.comment.dto.CommentSimpleDto;
 import com.backend.prog.domain.manager.dto.CodeDetailSimpleResponse;
 import lombok.Builder;
 import lombok.Data;
@@ -8,15 +10,13 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @ToString
 @NoArgsConstructor
 public class WorkDetailResponse {
-    // TODO : 멤버, 업무체크리스트, 댓글 DTO 생성시 해당 DTO로 변경
     // 멤버
-    // memberDto 신청자, 담당자
-
     private Long workId; // 업무ID
     private LocalDateTime createdAt; // 업무 생성일시
     private CodeDetailSimpleResponse workStatusCode;
@@ -26,14 +26,14 @@ public class WorkDetailResponse {
     private LocalDate endDay; // 업무종료일
 
     // 업무체크리스트
-    // 체크리스트Dto
+    private List<CheckListResponse> checkList;
 
     // 댓글
-    // 댓글Dto
-
+    private List<CommentDto.Response> comments;
 
     @Builder
-    private WorkDetailResponse(Long workId, LocalDateTime createdAt, CodeDetailSimpleResponse workStatusCode, String workTitle, String workContent, LocalDate startDay, LocalDate endDay) {
+    private WorkDetailResponse(Long workId, LocalDateTime createdAt, CodeDetailSimpleResponse workStatusCode, String workTitle, String workContent,
+                               LocalDate startDay, LocalDate endDay, List<CheckListResponse> checkList, List<CommentDto.Response> comments) {
         this.workId = workId;
         this.createdAt = createdAt;
         this.workStatusCode = workStatusCode;
@@ -41,5 +41,7 @@ public class WorkDetailResponse {
         this.workContent = workContent;
         this.startDay = startDay;
         this.endDay = endDay;
+        this.checkList = checkList;
+        this.comments = comments;
     }
 }

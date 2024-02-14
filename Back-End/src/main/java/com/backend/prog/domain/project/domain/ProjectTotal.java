@@ -56,7 +56,7 @@ public class ProjectTotal extends BaseEntity {
     }
 
     public void subtractCurrent(){
-        this.current += 1;
+        this.current -= 1;
     }
 
 }

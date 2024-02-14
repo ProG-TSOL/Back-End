@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -20,10 +20,12 @@ public class MemberDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.getWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Email Not Found"));
+        Optional<Member> result = memberRepository.getWithRoles(email);
+
+        Member member = result.orElseThrow(() -> new UsernameNotFoundException("email not found"));
 
         if(member.isDeleted()) {
-            throw new UsernameNotFoundException("Email Not Found");
+            throw new UsernameNotFoundException("withdrawal");
         }
 
         return new MemberSecurityDTO(member);

@@ -35,11 +35,15 @@ public class Feed extends BaseEntity {
     @Comment("멤버ID")
     private Integer memberId;
 
+    @Comment("피드내용")
+    private String content;
+
     @Builder
-    private Feed(Project project, CodeDetail contentCode, Long contentId, Integer memberId) {
+    private Feed(Project project, CodeDetail contentCode, Long contentId, Integer memberId, String content) {
         this.project = project;
         this.contentCode = contentCode;
         this.contentId = contentId;
         this.memberId = memberId;
+        this.content = content;
     }
 }

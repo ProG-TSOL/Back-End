@@ -43,7 +43,7 @@ public class ProjectTechCodeService {
 
         Optional<ProjectMember> projectMember = projectMemberRespository.findById(projectMemberId);
 
-        if(!projectMember.isPresent() || projectMember.get().getRoleCode().getId() != 17){
+        if(!projectMember.isPresent() || projectMember.get().getRoleCode().getId() != 48){
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 

@@ -61,7 +61,8 @@ public class CodeController {
     }
 
     @GetMapping("/details/{codeName}")
-    public List<CodeDetailResponse> getCodeDetailList(@PathVariable("codeName") String codeName) {
+//    public List<CodeDetailResponse> getCodeDetailList(@PathVariable("codeName") String codeName) {
+    public List<CodeDetailSimpleResponse> getCodeDetailList(@PathVariable("codeName") String codeName) {
         printLog("getCodeDetailList");
         return codeService.getCodeDetailList(codeName);
     }

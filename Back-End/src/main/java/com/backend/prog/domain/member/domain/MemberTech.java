@@ -29,15 +29,11 @@ public class MemberTech extends BaseEntity {
     @Comment("기술스택코드")
     private CodeDetail techCode;
 
-    @Comment("기술스택수준")
-    private Integer techLevel;
-
     @Builder
-    private MemberTech(MemberTechId id, Member member, CodeDetail techCode, Integer techLevel) {
+    private MemberTech(MemberTechId id, Member member, CodeDetail techCode) {
         this.id = id;
         this.member = member;
         this.techCode = techCode;
-        this.techLevel = techLevel;
     }
 
     public void updateTechLevel(Integer techLevel) {

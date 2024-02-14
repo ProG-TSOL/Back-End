@@ -3,6 +3,7 @@ package com.backend.prog.domain.retrospect.dao.custom;
 import com.backend.prog.domain.project.domain.Project;
 import com.backend.prog.domain.retrospect.domain.Action;
 import com.backend.prog.domain.retrospect.domain.QAction;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,11 @@ public class ActionRepositoryImpl implements ActionRepositoryCustom {
                         JPAExpressions.select(condAction.week.max())
                                 .from(condAction)
                                 .where(condAction.project.eq(project))
-                ))
+                ), eqProject(project))
                 .fetch();
+    }
+
+    private static BooleanExpression eqProject(Project project) {
+        return action.project.eq(project);
     }
 }

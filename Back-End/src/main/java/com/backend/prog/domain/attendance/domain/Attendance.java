@@ -45,7 +45,7 @@ public class Attendance extends BaseEntity {
         this.workingTime = workingTime;
     }
 
-    public void plusWorkingTime(Duration workTimes) {
-        this.workingTime.plus(workTimes);
+    public void plusWorkingTime(Long hours, Long  minutes, Long  seconds) {
+        this.workingTime = this.workingTime.plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
 }

@@ -10,6 +10,5 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        log.info("Logout Success");
     }
 }

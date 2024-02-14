@@ -14,6 +14,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "member")
+@ToString
 public class Member extends DeleteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,12 +47,12 @@ public class Member extends DeleteEntity {
     private String description;
 
     @Column(length = 20)
-    @Comment("깃허브 이메일")
-    private String gitEmail;
-
-    @Column(length = 20)
     @Comment("깃허브 아이디")
-    private String gitId;
+    private String gitUsername;
+
+    @Column(length = 255)
+    @Comment("원래 이미지 이름")
+    private String originImg;
 
     @Column(length = 255)
     @Comment("원래 이미지 이름")
@@ -76,12 +77,18 @@ public class Member extends DeleteEntity {
         this.nickname = nickname;
     }
 
-    public void updateProfile(String name, String nickname, String description, String originImg, String imgUrl) {
+    public void updateProfileWithImage(String name, String nickname, String description, String originImg, String imgUrl) {
         this.name = name;
         this.nickname = nickname;
         this.description = description;
         this.originImg = originImg;
         this.imgUrl = imgUrl;
+    }
+
+    public void updateProfile(String name, String nickname, String description) {
+        this.name = name;
+        this.nickname = nickname;
+        this.description = description;
     }
 
     public void changePassword(String password) {
@@ -98,6 +105,10 @@ public class Member extends DeleteEntity {
 
     public void changeTechs(List<MemberTech> techs) {
         this.techs = techs;
+    }
+
+    public void changeGithubInfo(String gitUsername) {
+        this.gitUsername = gitUsername;
     }
 
     @Override

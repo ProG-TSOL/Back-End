@@ -14,7 +14,7 @@ public enum ExceptionEnum {
     RUNTIME_EXCEPTION(HttpStatus.BAD_REQUEST, "E1000"),
     NULL_POINTER_EXCEPTION(HttpStatus.BAD_REQUEST, "E1001"),
     ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "E1002"),
-    ACCESS_DENIED_EXCEPTION(HttpStatus.BAD_REQUEST, "E1003"),
+    ACCESS_DENIED_EXCEPTION(HttpStatus.FORBIDDEN, "E1003"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E1004"),
 
     // Custom Exception CE1000번대
@@ -31,11 +31,13 @@ public enum ExceptionEnum {
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "CE1105", Message.MEMBER_NOT_FOUND),
     FAIL_AUTH_PASSWORD(HttpStatus.BAD_REQUEST, "CE1106", Message.FAIL_AUTH_PASSWORD),
     NOT_MATCH_CODE(HttpStatus.BAD_REQUEST, "CE1107", Message.NOT_MATCH_CODE),
+    ALREADY_WITHDRAWAL_MEMBER(HttpStatus.BAD_REQUEST, "CE1108", Message.ALREADY_WITHDRAWAL_MEMBER),
 
     //토큰 관련 오류: 1200번
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "CE1200", Message.INVALID_ACCESS_TOKEN),
-    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "CE1201", Message.INVALID_REFRESH_TOKEN),
-    EXPIRED_REFRESH_JWT(HttpStatus.UNAUTHORIZED, "CE1202", Message.EXPIRED_REFRESH_JWT),
+    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "CE1201", Message.EXPIRED_ACCESS_TOKEN),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "CE1202", Message.INVALID_REFRESH_TOKEN),
+    EXPIRED_REFRESH_JWT(HttpStatus.UNAUTHORIZED, "CE1203", Message.EXPIRED_REFRESH_JWT),
 
     //프로젝트 관련 오류 : 1300번
     DATA_CANNOT_ADD(HttpStatus.BAD_REQUEST, "CE1300", Message.DATA_CANNOT_ADD),
@@ -48,7 +50,10 @@ public enum ExceptionEnum {
     ALREADY_EXIST_END(HttpStatus.CONFLICT, "CE1306", Message.ALREADY_EXIST_END),
     ALREADY_EXIST_STARTAT(HttpStatus.BAD_REQUEST, "CE1307", Message.ALREADY_EXIST_STARTAT),
     ALREADY_EXIST_ENTAT(HttpStatus.BAD_REQUEST, "CE1308", Message.ALREADY_EXIST_ENTAT),
-    ONLY_REGISTER_THREE(HttpStatus.BAD_REQUEST, "CE1309", Message.ONLY_REGISTER_THREE);
+    ONLY_REGISTER_THREE(HttpStatus.BAD_REQUEST, "CE1309", Message.ONLY_REGISTER_THREE),
+    
+    //댓글 관련 오류 : 1400번
+    INVALID_CONTENT_DATA(HttpStatus.BAD_REQUEST, "CE1400", Message.INVALID_CONTENT_DATA);
 
     private final HttpStatus status;
     private final String code;
@@ -77,10 +82,12 @@ public enum ExceptionEnum {
         String MEMBER_NOT_FOUND = "존재하지 않는 회원입니다.";
         String FAIL_AUTH_PASSWORD = "비밀번호가 틀렸습니다.";
         String NOT_MATCH_CODE = "인증번호가 일치하지 않습니다.";
+        String ALREADY_WITHDRAWAL_MEMBER = "이미 탈퇴한 회원입니다.";
 
-        String INVALID_ACCESS_TOKEN = "유효하지 않은 토큰입니다.";
-        String EXPIRED_REFRESH_JWT = "만료된 토큰입니다.";
-        String INVALID_REFRESH_TOKEN = "유효하지 않은 토큰입니다.";
+        String INVALID_ACCESS_TOKEN = "유효하지 않은 엑세스 토큰입니다.";
+        String EXPIRED_ACCESS_TOKEN = "만료된 엑세스 토큰 입니다.";
+        String INVALID_REFRESH_TOKEN = "유효하지 않은 리프레시 토큰입니다.";
+        String EXPIRED_REFRESH_JWT = "만료된 리프레시 토큰입니다.";
 
         String DATA_CANNOT_ADD = "더이상 데이터를 추가할 수 없습니다.";
         String POSITION_FULL = "해당 포지션은 더이상 추가할 수 없습니다.";
@@ -93,5 +100,6 @@ public enum ExceptionEnum {
         String ALREADY_EXIST_STARTAT = "이미 출근 상태입니다.";
         String ALREADY_EXIST_ENTAT = "퇴근을 하려면 출근 상태여야 합니다.";
         String ONLY_REGISTER_THREE = "3개 이하의 액션만 등록할 수 있습니다.";
+        String INVALID_CONTENT_DATA = "존재하지 않는 컨텐츠 타입입니다.";
     }
 }

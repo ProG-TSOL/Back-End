@@ -10,24 +10,29 @@ import com.backend.prog.domain.member.domain.MemberTechId;
 import com.backend.prog.domain.member.domain.Role;
 import com.backend.prog.domain.member.dto.MemberDto;
 import com.backend.prog.global.S3.S3Uploader;
+import com.backend.prog.global.auth.api.OAuth2Api;
 import com.backend.prog.global.auth.dao.EmailAuthRepository;
 import com.backend.prog.global.auth.service.EmailService;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import com.backend.prog.domain.member.dto.MemberTechDto;
+import com.backend.prog.global.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -35,7 +40,15 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
 
+    private final ObjectMapper objectMapper;
+
+    private final JwtUtil jwtUtil;
+
     private final S3Uploader s3Uploader;
+
+    private final OAuth2Api oAuth2Api;
+
+    private final Environment environment;
 
     private final EmailService emailService;
 
@@ -78,10 +91,10 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public void updateProfile(Integer id, MemberDto.ProfilePatch memberDto, MultipartFile file) {
-        Member member = memberRepository.findByIdAndDeletedNot(id).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
+    public void updateProfile(MemberDto.ProfilePatch memberDto, MultipartFile file) {
+        Member member = memberRepository.findByIdAndDeletedNot(memberDto.id()).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
 
-        checkNickname(id, memberDto.nickname());
+        checkNickname(memberDto.id(), memberDto.nickname());
 
         if(memberDto.name().getBytes().length < 4 || memberDto.name().getBytes().length > 30
                 || memberDto.description().getBytes().length > 150) {
@@ -94,16 +107,12 @@ public class MemberServiceImpl implements MemberService{
         loop: for(MemberTechDto.Request memberTechDto : memberDto.memberTechDtoList()) {
             CodeDetail codeDetail = codeDetailRepository.findById(memberTechDto.techCode()).orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_MEMBER_DATA));
 
-            if(codeDetail.getCode().getId() != 4 || memberTechDto.techLevel() < 1 || memberTechDto.techLevel() > 5) {
+            if(codeDetail.getCode().getId() != 4) {
                 throw new CommonException(ExceptionEnum.INVALID_MEMBER_DATA);
             }
 
             for(MemberTech memberTech : memberTechList) {
                 if(memberTechDto.techCode().equals(memberTech.getId().getTechCode())) {
-                    if (!memberTechDto.techLevel().equals(memberTech.getTechLevel())) {
-                        memberTech.updateTechLevel(memberTechDto.techLevel());
-                    }
-
                     memberTechList.remove(memberTech);
 
                     newMemberTechList.add(memberTech);
@@ -113,16 +122,17 @@ public class MemberServiceImpl implements MemberService{
             }
 
             newMemberTechList.add(memberTechRepository.save(MemberTech.builder()
-                    .id(new MemberTechId(id, codeDetail.getId()))
+                    .id(new MemberTechId(member.getId(), codeDetail.getId()))
                     .member(member)
                     .techCode(codeDetail)
-                    .techLevel(memberTechDto.techLevel())
                     .build()));
         }
 
         for(MemberTech memberTech : memberTechList) {
             memberTechRepository.delete(memberTech);
         }
+
+        member.changeTechs(newMemberTechList);
 
         String originImg = null;
         String imgUrl = null;
@@ -136,10 +146,11 @@ public class MemberServiceImpl implements MemberService{
 
             originImg = s3Uploader.saveUploadFile(file);
             imgUrl = s3Uploader.getFilePath(originImg);
+            member.updateProfileWithImage(memberDto.name(), memberDto.nickname(), memberDto.description(), originImg, imgUrl);
         }
-
-        member.changeTechs(newMemberTechList);
-        member.updateProfile(memberDto.name(), memberDto.nickname(), memberDto.description(), originImg, imgUrl);
+        else {
+            member.updateProfile(memberDto.name(), memberDto.nickname(), memberDto.description());
+        }
     }
 
     @Override
@@ -149,6 +160,7 @@ public class MemberServiceImpl implements MemberService{
 
         return MemberDto.Response.builder()
                 .id(member.getId())
+                .email(member.getEmail())
                 .nickname(member.getNickname())
                 .imgUrl(member.getImgUrl())
                 .build();
@@ -156,11 +168,12 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     @Transactional(readOnly = true)
-    public MemberDto.Response getProfile(String email) {
-        Member member = memberRepository.findByEmailAndDeletedNot(email).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
+    public MemberDto.Response getMyProfile(Integer id) {
+        Member member = memberRepository.findByIdAndDeletedNot(id).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
 
         return MemberDto.Response.builder()
                 .id(member.getId())
+                .email(member.getEmail())
                 .nickname(member.getNickname())
                 .imgUrl(member.getImgUrl())
                 .build();
@@ -168,8 +181,8 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     @Transactional(readOnly = true)
-    public MemberDto.DetailResponse getDetailProfile(String email) {
-        Member member = memberRepository.findByEmailAndDeletedNot(email).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
+    public MemberDto.DetailResponse getDetailProfile(Integer id) {
+        Member member = memberRepository.findByIdAndDeletedNot(id).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
         List<MemberTech> memberTechList = member.getTechs();
         List<MemberTechDto.Response> memberTechDtoResponseList = new ArrayList<>();
 
@@ -181,19 +194,38 @@ public class MemberServiceImpl implements MemberService{
                             .id(codeDetail.getId())
                             .name(codeDetail.getDetailName())
                             .description(codeDetail.getDetailDescription())
-                            .techImgUrl(codeDetail.getImgUrl())
-                            .techLevel(memberTech.getTechLevel())
                             .build()
             );
         }
+
+        String gitUsername = member.getGitUsername();
+        String readMe = null;
+
+        if(member.getGitUsername() != null) {
+            log.info(member.getGitUsername());
+            try {
+                URI uri = new URI(environment.getProperty("oauth2.github.base-url"));
+                Object readMeObject = oAuth2Api.getReadMe(uri, gitUsername, gitUsername);
+
+                Map<Object, String> result = objectMapper.convertValue(readMeObject, Map.class);
+
+                readMe = new String(Base64.decodeBase64(result.get("content")));
+            } catch (Exception e) {
+                log.info(e);
+            }
+        }
+
 
         return MemberDto.DetailResponse.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
                 .nickname(member.getNickname())
+                .provider(member.getProvider())
                 .description(member.getDescription())
+                .imgUrl(member.getImgUrl())
                 .memberTechList(memberTechDtoResponseList)
+                .readMe(readMe)
                 .build();
     }
 
@@ -218,16 +250,16 @@ public class MemberServiceImpl implements MemberService{
             }
         }
 
-        Optional<Member> member = memberRepository.findByNickname(nickname);
+        Optional<Member> memberOptional = memberRepository.findByNickname(nickname);
 
-        if(member.isPresent() && !member.orElseThrow().getId().equals(id)) {
+        if(memberOptional.isPresent() && !memberOptional.orElseThrow().getId().equals(id)) {
             throw new CommonException(ExceptionEnum.ALREADY_EXIST_NICKNAME);
         }
     }
 
     @Override
-    public void changePassword(Integer id, MemberDto.PasswordPatch memberDto) {
-        Member member = memberRepository.findByIdAndDeletedNot(id).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
+    public void changePassword(MemberDto.PasswordPatch memberDto) {
+        Member member = memberRepository.findByIdAndDeletedNot(memberDto.id()).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
 
         if(!passwordEncoder.matches(memberDto.originPassword(), member.getPassword())) {
             throw new CommonException(ExceptionEnum.FAIL_AUTH_PASSWORD);
@@ -276,5 +308,14 @@ public class MemberServiceImpl implements MemberService{
         }
         
         emailAuthRepository.deleteById(authCode + email);
+    }
+
+    @Override
+    public void withdrawalMember(HttpServletRequest request, HttpServletResponse response, Integer id) {
+        Member member = memberRepository.findByIdAndDeletedNot(id).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
+
+        jwtUtil.destroyToken(request, response);
+
+        member.deleteData();
     }
 }

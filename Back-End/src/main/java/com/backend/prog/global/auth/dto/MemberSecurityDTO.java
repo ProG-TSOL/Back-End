@@ -14,7 +14,6 @@ public class MemberSecurityDTO extends User {
 
     public MemberSecurityDTO(Member member) {
         super(member.getEmail(), member.getPassword(), member.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRole())).collect(Collectors.toList()));
-
         this.id = member.getId();
     }
 }

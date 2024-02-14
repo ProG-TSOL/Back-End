@@ -34,18 +34,22 @@ public class Comment extends DeleteEntity {
     private Long parentId;
 
     @org.hibernate.annotations.Comment("컨텐츠ID")
-    private String contentId;
+    private Long contentId;
 
     @Column(length = 300)
     @org.hibernate.annotations.Comment("내용")
     private String content;
 
     @Builder
-    private Comment(CodeDetail contentCode, Member member, Long parentId, String contentId, String content) {
+    private Comment(CodeDetail contentCode, Member member, Long parentId, Long contentId, String content) {
         this.contentCode = contentCode;
         this.member = member;
         this.parentId = parentId;
         this.contentId = contentId;
+        this.content = content;
+    }
+
+    public void updateContent(String content) {
         this.content = content;
     }
 }

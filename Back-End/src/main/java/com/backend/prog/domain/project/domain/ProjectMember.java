@@ -45,4 +45,8 @@ public class ProjectMember extends DeleteEntity {
         this.jobCode = jobCode;
         this.roleCode = roleCode;
     }
+
+    public void updateJob(CodeDetail updateJob) {
+        this.jobCode = updateJob;
+    }
 }

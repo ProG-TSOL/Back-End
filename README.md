@@ -5,14 +5,14 @@
 
 # 목차
 
-1. 개요
-2. 개발 환경
-3. 서비스 화면
-5. 기술 소개
-6. 설계 문서
-7. 팀원 소개
+1. [개요](#1.-개요)
+2. [개발 환경](#2.-개발-환경)
+3. [서비스 화면](##3.-서비스-화면)
+4. [기술 소개](#4.-기술-소개)
+5. [설계 문서](#5.-설계-문서)
+6. [팀원 소개](#6.-팀원-소개)
 
-# 1. 개요
+# 1. 개요 
 
 ## 프로젝트를 생성해 팀원을 모집하고 프로젝트를 진행하며 협업을 위한 서비스를 제공한다.
 
@@ -98,6 +98,7 @@
 - Feed
   - 특정 이벤트에 Kafka Topic을 등록해 이벤트가 발생하면 피드를 저장하는 함수가 실행된다.
 
+
 ## FrontEnd
 - Component
 	- 분량이 길거나 다른 페이지에서도 사용하는 기능은 Component화 시켜서 재사용할 수 있도록 하였다.
@@ -151,6 +152,19 @@
 
 # 6. 팀원 소개
 
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><img src="img/전승열.jpg" width="100px;" alt=""/><br /><sub><b>팀장 : 전승열</b></sub></a><br /></td>
+      <td align="center"><img src="img/민준.jpg" width="100px;" alt=""/><br /><sub><b>BE 리더 : 최민준</b></sub></a><br /></td>
+      <td align="center"><img src="img/최승준 (1).jpg" width="100px;" alt=""/><br /><sub><b>BE 팀원 : 최승준</b></sub></a><br /></td>
+     <tr/>
+      <td align="center"><img src="img/정지원.jpg" width="100px;" alt=""/><br /><sub><b>FE 리더 : 정지원</b></sub></a><br /></td>
+      <td align="center"><img src="img/박은수.jpg" width="100px;" alt=""/><br /><sub><b>부팀장 : 박은수</b></sub></a><br /></td>
+      <td align="center"><img src="img/백진규.jpg" width="100px;" alt=""/><br /><sub><b>FE 팀원 : 백진규</b></sub></a><br /></td>
+    </tr>
+  </tbody>
+</table>
 
 # 깃 컨벤션
 ## 브렌치 생성 컨벤션

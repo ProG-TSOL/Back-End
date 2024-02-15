@@ -100,7 +100,19 @@
 
 # 5. 설계 문서
 
+- 요구사항 정의서
+![image-9.png](./image-9.png)
+![image-10.png](./image-10.png)
+![image-11.png](./image-11.png)
+![image-12.png](./image-12.png)
+
+- 기능 명세서
+![image-13.png](./image-13.png)
+
 [PostMan API 명세서](https://documenter.getpostman.com/view/30927835/2s9YysENQb)
+
+- ERD
+![diagram.jpg](./diagram.jpg)
 
 # 6. 팀원 소개
 

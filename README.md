@@ -3,7 +3,7 @@
 
 ![image.png](./image.png)
 
-#목차
+# 목차
 ***
 
 1. 개요
@@ -13,10 +13,35 @@
 6. 설계 문서
 7. 팀원 소개
 
-#1. 개요
+# 1. 개요
+***
+## 프로젝트를 생성해 팀원을 모집하고 프로젝트를 진행하며 협업을 위한 서비스를 제공한다.
+- 프로젝트 생성
+![image-1.png](./image-1.png)
 
+- 프로젝트 신청
+![image-2.png](./image-2.png)
 
-#2. 개발 환경
+- 프로젝트 관리
+![image-3.png](./image-3.png)
+
+  - 근태
+  ![image-4.png](./image-4.png)
+
+  - 업무
+  ![image-5.png](./image-5.png)
+
+  - 피드
+    - 업무
+    ![image-7.png](./image-7.png)
+    - 자유
+    ![image-6.png](./image-6.png)
+
+  - 회고
+  ![image-8.png](./image-8.png)
+
+# 2. 개발 환경
+***
 
 ### ⚙ Management Tool
 ![Jira](https://img.shields.io/badge/jira-%230A0FFF.svg?style=for-the-badge&logo=jira&logoColor=white) ![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white) ![GitLab](https://img.shields.io/badge/gitlab-%23181717.svg?style=for-the-badge&logo=gitlab&logoColor=white) ![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white) ![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white) 
@@ -33,15 +58,34 @@
 ### 💻 BackEnd
 ![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white) ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) 
 
-#3. 서비스 화면
+# 3. 서비스 화면
+***
 
-#4. 기술소개
+# 4. 기술소개
+***
 
 ## BackEnd
+- Member
+  - Security Filter와 JWT Token을 사용하여 API 요청 시 요청자의 권한을 검사한다.
+  - OAuth2 인증을 이용해 깃허브 회원가입, 로그인, 계정 연동을 통해 불필요한 개인정보 최소화
+  - Redis에 Acces Token과 Refresh Token을 관리해 유저가 로그아웃 요청 시 Refresh Token을 지우고 BlackList에 Acces Token을 저장해 Acces Token 탈취에 대한 대비
+  - 자체 회원가입시 이메일 인증을 통해 무분별한 가입을 방지
 
-#5. 설계 문서
+- Code, CodeDetail
+  - 공통으로 사용되는 값들을 정의해 DB에 부하를 줄였다.
 
-#6. 팀원 소개
+- Attendance, Attendance_Log
+  - 서버 시간을 기준으로 출/퇴근 시간을 기록
+  - 퇴근 요청시 출근 시간과 비교해 업무 시간을 기록/합산 한다.
+
+- Feed
+  - 특정 이벤트에 Kafka Topic을 등록해 이벤트가 발생하면 피드를 저장하는 함수가 실행된다.
+
+# 5. 설계 문서
+***
+
+# 6. 팀원 소개
+***
 
 # 깃 컨벤션
 ## 브렌치 생성 컨벤션

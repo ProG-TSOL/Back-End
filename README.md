@@ -100,6 +100,7 @@
 
 # 5. 설계 문서
 
+[PostMan API 명세서](https://documenter.getpostman.com/view/30927835/2s9YysENQb)
 
 # 6. 팀원 소개
 

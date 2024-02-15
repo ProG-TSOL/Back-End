@@ -55,10 +55,6 @@ public class Member extends DeleteEntity {
     private String originImg;
 
     @Column(length = 255)
-    @Comment("원래 이미지 이름")
-    private String originImg;
-
-    @Column(length = 255)
     @Comment("이미지주소")
     private String imgUrl;
 
@@ -117,5 +113,4 @@ public class Member extends DeleteEntity {
         this.roles = null;
         this.nickname = "알 수 없음";
     }
-
 }

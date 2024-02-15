@@ -60,10 +60,6 @@ public class SecurityConfig {
             , "/oauth2/authorization/{providerReg}", "/login/oauth2/code/github", "/codes", "/codes/{codename}", "/codes/details/{codename}", "/codes/details/detail/{detailCodeId}"
             , "/codes", "/codes/{codename}", "/codes/details/{codename}", "/codes/details/detail/{detailCodeId}"};
 
-    private final String[] ALLOWED_MEMBER_URL = {"/members/login", "/members/sign-up", "/members/nickName-validation-check/{nickname}"
-            , "/members/email-verification", "/members/email-verification-confirm"
-            , "/members/profile/{email}", "/members/detail-profile/{email}"};
-
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http.formLogin(AbstractHttpConfigurer::disable)

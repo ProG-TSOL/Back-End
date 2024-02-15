@@ -35,8 +35,4 @@ public class MemberTech extends BaseEntity {
         this.member = member;
         this.techCode = techCode;
     }
-
-    public void updateTechLevel(Integer techLevel) {
-        this.techLevel = techLevel;
-    }
 }

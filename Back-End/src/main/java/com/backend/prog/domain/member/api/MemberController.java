@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.Map;
 
 @Log4j2
 @RestController
@@ -109,27 +108,5 @@ public class MemberController {
         memberService.withdrawalMember(request, response, id);
 
         SecurityContextHolder.clearContext();
-    }
-
-    @PostMapping("/email-verification")
-    public CommonApiResponse<?> sendAuthCode(@RequestBody Map<String, String> emailMap) {
-        memberService.sendAuthCode(emailMap.get("email"));
-
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(null)
-                .cnt(1)
-                .build();
-    }
-
-    @PostMapping("/email-verification-confirm")
-    public CommonApiResponse<?> verifyAuthCode(@RequestBody Map<String, String> map) {
-        memberService.verifyAuthCode(map.get("email"), map.get("authCode"));
-
-        return CommonApiResponse.builder()
-                .status(HttpStatus.OK)
-                .data(null)
-                .cnt(1)
-                .build();
     }
 }

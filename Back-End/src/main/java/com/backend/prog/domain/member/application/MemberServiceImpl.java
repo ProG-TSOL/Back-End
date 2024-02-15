@@ -168,7 +168,7 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     @Transactional(readOnly = true)
-    public MemberDto.Response getMyProfile(Integer id) {
+    public MemberDto.Response getProfile(Integer id) {
         Member member = memberRepository.findByIdAndDeletedNot(id).orElseThrow(() -> new CommonException(ExceptionEnum.MEMBER_NOT_FOUND));
 
         return MemberDto.Response.builder()

@@ -98,6 +98,31 @@
 - Feed
   - 특정 이벤트에 Kafka Topic을 등록해 이벤트가 발생하면 피드를 저장하는 함수가 실행된다.
 
+## FrontEnd
+- Component
+	- 분량이 길거나 다른 페이지에서도 사용하는 기능은 Component화 시켜서 재사용할 수 있도록 하였다.
+
+- useUserStore
+	- 사용자 프로필을 localStorage에 저장한 뒤 zustand를 통해 상태관리를 진행하여 Props를 사용하지 않고 모든 페이지에서 유저의 정보를 이용할 수 있게 하였다
+
+- useAuthStore
+	- 사용자별로 할당된 Access Token을 관리하는 useAuthStore Hook을 생성하여 Access Token을 모든 페이지에서 사용하여 접근할 수 있도록 하였다.
+
+- axios.ts
+	- zustand로 관리한 Access Token을 자동으로 api 요청의 Header에 담게 하여 Access Token의 노출 없이 api 요청을 보낼 수 있게 하였다.
+
+- useActionQuery
+	- react-query를 사용해 Action Data를 fetch할 수 있게 하였다.
+	- Data Fetch 로직을 컴포넌트로부터 추상화하여 자동으로 Data를 fetch, cache할 수 있게 하였다.
+
+- Recruit
+	- 필터와 검색을 통해 프로젝트를 검색할 수 있게 하였다.
+	- 각 프로젝트별로 사용자와 프로젝트의 관계를 파악해 참여 중인 프로젝트를 확인할 수 있게 하였다.
+
+- Project
+	- 멤버, 프로젝트 관리 등 관리자 권한이 필요한 기능을 zustand를 통해 권한을 부여하였다.
+
+
 # 5. 설계 문서
 
 - 요구사항 정의서

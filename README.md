@@ -1,7 +1,7 @@
 # Prog
 
 
-![image.png](./image.png)
+![image.png](img/image.png)
 
 # 목차
 
@@ -19,44 +19,44 @@
 ### 프로젝트 생성
 - 프로젝트의 제목, 설명, 프로젝트 기간, 사용 기술스택, 필요한 포지션등을 등록하여 프로젝트를 생성한다
 
-![image-1.png](./image-1.png)
+![image-1.png](img/image-1.png)
 
 ### 프로젝트 신청
 - 원하는 프로젝트의 특정 포지션에 지원한다
 - 팀장은 프로젝트 신청 현황을 보고 수락/거절을 할 수있다.
 
-![image-2.png](./image-2.png)
+![image-2.png](img/image-2.png)
 
 ### 프로젝트 관리
 - 프로젝트 전반적인 진행 사항을 알 수 있다. 
 
-![image-3.png](./image-3.png)
+![image-3.png](img/image-3.png)
 
   - 근태
     - 출/퇴근 버튼을 클릭하여 언제 몇시간동안 근무했는지 기록을 남길 수 있다.
 
-  ![image-4.png](./image-4.png)
+  ![image-4.png](img/image-4.png)
 
   - 업무
     - 팀원 혹은 자신의 업무를 등록하여 프로젝트 관리를 수월하게 할 수 있다.
 
-  ![image-5.png](./image-5.png)
+  ![image-5.png](img/image-5.png)
 
   - 피드
     - 업무
      - 업무 등록 및 피드 작성 등 프로젝트 내부에 발생한 이벤트들이 피드로 등록된다.
 
-    ![image-7.png](./image-7.png)
+    ![image-7.png](img/image-7.png)
     
     - 자유
       - 프로젝트를 하며 필요한 문서, 공지 등을 게시글 형태로 등록할 수 있다.
 
-    ![image-6.png](./image-6.png)
+    ![image-6.png](img/image-6.png)
 
   - 회고
     - KPT 회고 방식으로 한주동안 프로젝트를 진행하며 좋았던점, 아쉬운점, 시도해보고 싶은 점 등을 작성하고 다음주의 액션을 팀장이 설정 할 수 있다.
     
-  ![image-8.png](./image-8.png)
+  ![image-8.png](img/image-8.png)
 
 # 2. 개발 환경
 
@@ -101,24 +101,24 @@
 # 5. 설계 문서
 
 - 요구사항 정의서
-![image-9.png](./image-9.png)
-![image-10.png](./image-10.png)
-![image-11.png](./image-11.png)
-![image-12.png](./image-12.png)
+![image-9.png](img/image-9.png)
+![image-10.png](img/image-10.png)
+![image-11.png](img/image-11.png)
+![image-12.png](img/image-12.png)
 
 
 - 기능 명세서
-![image-13.png](./image-13.png)
-![image-14.png](./image-14.png)
-![image-15.png](./image-15.png)
-![image-16.png](./image-16.png)
-![image-17.png](./image-17.png)
+![image-13.png](img/image-13.png)
+![image-14.png](img/image-14.png)
+![image-15.png](img/image-15.png)
+![image-16.png](img/image-16.png)
+![image-17.png](img/image-17.png)
 
 - API 명세서
 [PostMan API 명세서](https://documenter.getpostman.com/view/30927835/2s9YysENQb)
 
 - ERD
-![diagram.jpg](./diagram.jpg)
+![diagram.jpg](img/diagram.jpg)
 
 
 - Figma

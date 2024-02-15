@@ -106,18 +106,20 @@
 ![image-11.png](./image-11.png)
 ![image-12.png](./image-12.png)
 
+
 - 기능 명세서
 ![image-13.png](./image-13.png)
+![image-14.png](./image-14.png)
+![image-15.png](./image-15.png)
+![image-16.png](./image-16.png)
+![image-17.png](./image-17.png)
 
 - API 명세서
 [PostMan API 명세서](https://documenter.getpostman.com/view/30927835/2s9YysENQb)
 
 - ERD
 ![diagram.jpg](./diagram.jpg)
-![image-14.png](./image-14.png)
-![image-15.png](./image-15.png)
-![image-16.png](./image-16.png)
-![image-17.png](./image-17.png)
+
 
 - Figma
 [피그마 링크](https://www.figma.com/file/YIy0Aw26vEYxUutiqowa2b/Gitit?type=design&node-id=3%3A2&mode=design&t=0aUrRt6N7vSDHLh8-1)

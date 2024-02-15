@@ -4,7 +4,6 @@
 ![image.png](./image.png)
 
 # 목차
-***
 
 1. 개요
 2. 개발 환경
@@ -14,7 +13,7 @@
 7. 팀원 소개
 
 # 1. 개요
-***
+
 ## 프로젝트를 생성해 팀원을 모집하고 프로젝트를 진행하며 협업을 위한 서비스를 제공한다.
 
 ### 프로젝트 생성
@@ -60,7 +59,6 @@
   ![image-8.png](./image-8.png)
 
 # 2. 개발 환경
-***
 
 ### ⚙ Management Tool
 ![Jira](https://img.shields.io/badge/jira-%230A0FFF.svg?style=for-the-badge&logo=jira&logoColor=white) ![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white) ![GitLab](https://img.shields.io/badge/gitlab-%23181717.svg?style=for-the-badge&logo=gitlab&logoColor=white) ![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white) ![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white) 
@@ -78,10 +76,10 @@
 ![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white) ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) 
 
 # 3. 서비스 화면
-***
+
 
 # 4. 기술소개
-***
+
 
 ## BackEnd
 - Member
@@ -101,10 +99,10 @@
   - 특정 이벤트에 Kafka Topic을 등록해 이벤트가 발생하면 피드를 저장하는 함수가 실행된다.
 
 # 5. 설계 문서
-***
+
 
 # 6. 팀원 소개
-***
+
 
 # 깃 컨벤션
 ## 브렌치 생성 컨벤션

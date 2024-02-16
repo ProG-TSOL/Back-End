@@ -49,7 +49,7 @@ public class ProjectRespositoryImpl implements ProjectRespositoryCustom {
         return jpaQueryFactory
                 .select(project)
                 .from(project)
-                .where(createAtAfterOneWeekAgo())
+                .where(createAtAfterOneWeekAgo(), project.isDeleted.eq(false))
                 .orderBy(project.viewCnt.desc())
                 .limit(16)
                 .fetch();

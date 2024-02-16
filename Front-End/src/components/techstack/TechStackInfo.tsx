@@ -4,7 +4,7 @@ const TechStackInfo = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="relative flex justify-center items-center">
+    <div className="relative flex mb-2 justify-center items-center">
       <div
         className="bg-gray-200 rounded-full w-8 h-8 flex justify-center items-center cursor-pointer hover:bg-gray-300"
         onMouseEnter={() => setIsHovered(true)}

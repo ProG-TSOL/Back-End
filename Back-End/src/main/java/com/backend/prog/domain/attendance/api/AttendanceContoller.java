@@ -14,7 +14,7 @@ import java.util.List;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/attendances")
+@RequestMapping("/api/attendances")
 public class AttendanceContoller {
 
     private final AttendanceService attendanceService;

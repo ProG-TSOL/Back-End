@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProjectMemberRespository extends JpaRepository<ProjectMember, ProjectMemberId> {
-    @Query(value = "select pm from ProjectMember pm where pm.project.id = :projectId")
+    @Query(value = "select pm from ProjectMember pm where pm.project.id = :projectId order by pm.createdAt")
     List<ProjectMember> findAllByProjectId(@Param("projectId") Long projecId);
 
     @Query(value = "select pm from ProjectMember pm where pm.project = :project and pm.isDeleted = false")

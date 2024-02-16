@@ -7,7 +7,7 @@ const ProjectPage = () => {
 	useRequireAuth();
 
 	return (
-		<div className='flex h-screen'>
+		<div className='flex h-full'>
 			<div className='flex-none'>
 				<SideBar />
 			</div>

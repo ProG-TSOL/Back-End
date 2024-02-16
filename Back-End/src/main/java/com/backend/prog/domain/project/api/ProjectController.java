@@ -18,7 +18,7 @@ import java.util.List;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/projects")
+@RequestMapping("/api/projects")
 public class ProjectController {
     private final ProjectService projectService;
     private final ProjectTotalService projectTotalService;

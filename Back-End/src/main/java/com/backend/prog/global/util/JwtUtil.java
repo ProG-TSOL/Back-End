@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +91,8 @@ public class JwtUtil {
                 .httpOnly(true)
                 .build();
 
-        response.setHeader("Set-Cookie", cookie.toString());
+        response.setHeader("Cache-Control", "no-cache, no-store");
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     public String extractAccessToken(HttpServletRequest request) {
@@ -107,7 +109,7 @@ public class JwtUtil {
 
     public String extractRefreshToken(Cookie[] cookies) {
         for (Cookie c : cookies) {
-            if (c.getName().equals("refreshToken")) {
+            if (c.getName().equals(refreshTokenHeader)) {
                 return c.getValue();
             }
         }

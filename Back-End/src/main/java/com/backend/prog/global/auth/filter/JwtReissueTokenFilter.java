@@ -36,8 +36,6 @@ public class JwtReissueTokenFilter extends OncePerRequestFilter {
         try {
             String token = jwtUtil.extractRefreshToken(request.getCookies());
 
-            log.info(token);
-
             Map<String, Object> claim = jwtUtil.extractClaim(token);
 
             Integer id = (Integer) claim.get("id");

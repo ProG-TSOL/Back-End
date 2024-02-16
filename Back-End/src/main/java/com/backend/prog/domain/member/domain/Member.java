@@ -73,18 +73,15 @@ public class Member extends DeleteEntity {
         this.nickname = nickname;
     }
 
-    public void updateProfileWithImage(String name, String nickname, String description, String originImg, String imgUrl) {
+    public void updateProfileInfo(String name, String nickname, String description) {
         this.name = name;
         this.nickname = nickname;
         this.description = description;
-        this.originImg = originImg;
-        this.imgUrl = imgUrl;
     }
 
-    public void updateProfile(String name, String nickname, String description) {
-        this.name = name;
-        this.nickname = nickname;
-        this.description = description;
+    public void updateProfileImg(String originImg, String imgUrl) {
+        this.originImg = originImg;
+        this.imgUrl = imgUrl;
     }
 
     public void changePassword(String password) {

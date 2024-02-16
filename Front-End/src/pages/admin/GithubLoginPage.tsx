@@ -1,5 +1,5 @@
-// import { proxyAxiosInstance } from '../../apis/lib/proxyAxios';
-import { axiosInstance } from '../../apis/lib/axios';
+// import { axiosInstance } from '../../apis/lib/axios';
+import { proxyAxiosInstance } from '../../apis/lib/proxyAxios';
 import { useEffect } from 'react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useUserStore } from '../../stores/useUserStore';
@@ -27,7 +27,7 @@ const GithubLoginPage = () => {
 
 	const postCode = async (code: string) => {
 		try {
-			const response = await axiosInstance.post(`/members/login/oauth2/github?code=${code}`);
+			const response = await proxyAxiosInstance.post(`/members/login/oauth2/github?code=${code}`);
 			console.log('github response : ', response.data);
 
 			const accessToken = response.headers['accesstoken'];
@@ -42,7 +42,7 @@ const GithubLoginPage = () => {
 		}
 	};
 
-	return <div>GithubLoginPage</div>;
+	return <div></div>;
 };
 
 export default GithubLoginPage;

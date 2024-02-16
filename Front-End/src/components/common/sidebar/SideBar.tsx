@@ -1,6 +1,6 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
 import CommuteCheckBtn from '../../commute/CommuteCheckBtn';
-
+import '../../../styles/component/sidebar.scss';
 interface SideTab {
 	label: string;
 	path: string;
@@ -33,7 +33,7 @@ const SideBar = () => {
 	return (
 		<div className='flex flex-col'>
 			<div
-				className='flex flex-col bg-sub-color w-52 items-center justify-evenly'
+				className='flex flex-col sidebar-main w-52 items-center justify-evenly'
 				style={{ height: 'calc(100vh - 64px)' }}
 			>
 				{/* 출퇴근 */}

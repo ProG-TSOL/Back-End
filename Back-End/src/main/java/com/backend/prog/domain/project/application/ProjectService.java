@@ -55,9 +55,11 @@ public class ProjectService {
     private final WorkRepository workRepository;
     private final CodeCommonService codeCommonService;
 
+    private static final String BASIC_PROJECT_IMAGE_URL = "https://ssafy-prog-bucket.s3.amazonaws.com/istockphoto-1413922045-612x612.jpg";
+
     @Transactional
     public Project createProject(Integer memberId, ProjectDto.Post projectDto, MultipartFile file) {
-        String projectImgUrl = "";
+        String projectImgUrl = BASIC_PROJECT_IMAGE_URL;
 
         if (file != null) {
             projectImgUrl = s3Uploader.saveUploadFile(file);
@@ -230,6 +232,7 @@ public class ProjectService {
         return project;
     }
 
+    @Transactional
     public Project startProject(Long projectId, Integer memberId) {
         // 멤버가 팀장인지 확인
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
@@ -249,7 +252,13 @@ public class ProjectService {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 
-        projectRespository.save(project);
+        Project saveProject = projectRespository.save(project);
+
+//        종료일 계산 =>
+        Integer period = saveProject.getPeriod();
+        LocalDate startDay = saveProject.getStartDay();
+        LocalDate endDate = startDay.plusDays(period * 7L);
+        saveProject.updateEndDate(endDate);
 
         return project;
     }
@@ -394,6 +403,7 @@ public class ProjectService {
      */
     public Integer getProgress(LocalDate startDay, LocalDate endDay) {
         if (startDay == null || endDay == null) return 0;
+        if (startDay.equals(endDay)) return 100;
 
         LocalDate now = LocalDate.now();
         long totalDays = ChronoUnit.DAYS.between(startDay, endDay);

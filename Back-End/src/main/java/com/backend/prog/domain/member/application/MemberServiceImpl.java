@@ -62,7 +62,13 @@ public class MemberServiceImpl implements MemberService{
 
     private final PasswordEncoder passwordEncoder;
 
-    private final String[] PROHIBITED_NICKNAME = {"null", "undefined"};
+    private static final String[] PROHIBITED_NICKNAME = {"null", "undefined"};
+
+    private static final String BASIC_PROFILE_IMAGE_NAME = "BasicImg";
+
+    private static final String BASIC_PROFILE_IMAGE_URL = "https://ssafy-prog-bucket.s3.amazonaws.com/fkQJvXRM4AEViD9oNA-Yj_nhQQ4upD8Uno079rmlltCitJJGfmLDI_3QoG_YFtW9jSsx51e65hQ0JdQ6AH0wxA.webp";
+
+
 
     @Override
     public void signUp(MemberDto.Post memberDto) {
@@ -86,6 +92,8 @@ public class MemberServiceImpl implements MemberService{
                 .build();
 
         member.addRole(Role.USER);
+
+        member.updateProfileImg(BASIC_PROFILE_IMAGE_NAME, BASIC_PROFILE_IMAGE_URL);
 
         memberRepository.save(member);
     }
@@ -134,23 +142,19 @@ public class MemberServiceImpl implements MemberService{
 
         member.changeTechs(newMemberTechList);
 
-        String originImg = null;
-        String imgUrl = null;
-
         if (file != null && !file.isEmpty()){
             String previousOriginImg = member.getOriginImg();
 
-            if(previousOriginImg != null && !previousOriginImg.isEmpty()) {
+            if(previousOriginImg != null && !previousOriginImg.isEmpty() && !previousOriginImg.equals(BASIC_PROFILE_IMAGE_NAME)) {
                 s3Uploader.deleteFile(member.getOriginImg());
             }
 
-            originImg = s3Uploader.saveUploadFile(file);
-            imgUrl = s3Uploader.getFilePath(originImg);
-            member.updateProfileWithImage(memberDto.name(), memberDto.nickname(), memberDto.description(), originImg, imgUrl);
+            String originImg = s3Uploader.saveUploadFile(file);
+            String imgUrl = s3Uploader.getFilePath(originImg);
+            member.updateProfileImg(originImg, imgUrl);
         }
-        else {
-            member.updateProfile(memberDto.name(), memberDto.nickname(), memberDto.description());
-        }
+
+        member.updateProfileInfo(memberDto.name(), memberDto.nickname(), memberDto.description());
     }
 
     @Override

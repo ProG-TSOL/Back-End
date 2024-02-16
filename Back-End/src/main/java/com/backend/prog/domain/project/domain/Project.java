@@ -113,6 +113,10 @@ public class Project extends DeleteEntity implements Serializable {
         this.endDay = LocalDate.now();
     }
 
+    public void updateEndDate(LocalDate endDay) {
+        this.endDay = endDay;
+    }
+
     public void addLike() {
      this.likeCnt += 1;
     }

@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-	useAttendanceEndMutation,
-	useAttendanceStartMutation,
-	useAttendanceStartQuery,
-} from '../../apis/useAttendance';
+import { useAttendanceEndMutation, useAttendanceStartMutation } from '../../apis/useAttendance';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/component/navbar.scss';
 
 export interface CommuteCheckBtnProps {
 	projectId: number;
@@ -12,91 +9,97 @@ export interface CommuteCheckBtnProps {
 }
 
 const CommuteCheckBtn = ({ projectId, memberId }: CommuteCheckBtnProps) => {
-	const { mutate: startAttendance } = useAttendanceStartMutation();
-	const { data: attendance, isLoading, error } = useAttendanceStartQuery(projectId, memberId);
-	const { mutate: endAttendance } = useAttendanceEndMutation();
 	const [isWorking, setIsWorking] = useState(false); //출근 상태 관리
 	const [showModal, setShowModal] = useState(false);
+	const [startDateTime, setStartDateTime] = useState<{ date: string; time: string } | null>(null);
 	const navigate = useNavigate();
 
+	const { mutate: startAttendance, data: startData } = useAttendanceStartMutation();
+	const { mutate: endAttendance } = useAttendanceEndMutation();
+
 	useEffect(() => {
-		if (attendance?.data) {
-			setIsWorking(attendance.data.isWorking); //출근 상태 초기화(true로)
+		const localAttendance = loadAttendance();
+		if (startData) {
+			const { date, time } = convertToKST(startData.data.startAt);
+			saveAttendance(date, time);
+			setStartDateTime({ date, time });
+		} else if (localAttendance) {
+			setIsWorking(true);
+			const { date, time } = localAttendance;
+			setStartDateTime({ date, time });
 		}
-	}, [attendance]);
+	}, [startData]);
+
+	const attendanceTime = 'attendanceTime';
+
+	//출근 시, localStorage에 출근시간 저장
+	const saveAttendance = (date: string, time: string) => {
+		localStorage.setItem(attendanceTime, JSON.stringify({ date, time }));
+		setIsWorking(true);
+	};
+
+	//퇴근 시, localStorage에 출근시간 삭제
+	const clearAttendance = () => {
+		localStorage.removeItem(attendanceTime);
+		setIsWorking(false);
+	};
+
+	//localStorage에서 출근상태 불러오기(새로고침 or 페이지 이동 시)
+	const loadAttendance = () => {
+		const attendanceTimes = localStorage.getItem(attendanceTime);
+		if (attendanceTimes) {
+			const { date, time } = JSON.parse(attendanceTimes);
+			return { date, time };
+		}
+		return null;
+	};
 
 	//출근 버튼 클릭 시
 	const handleStartAttendance = async () => {
-		await startAttendance(
-			{ projectId, memberId },
-			// {
-			// 	//성공 콜백에서 상태 업데이트
-			// 	onSuccess: () => {
-			// 		setIsWorking(true);
-			// 	},
-			// },
-		);
+		await startAttendance({ projectId, memberId });
 		setIsWorking(true);
-		// console.log(projectId, memberId, 'success');
 	};
 
 	//퇴근 버튼 클릭 시
 	const handleEndAttendance = async () => {
-		await endAttendance(
-			{ projectId, memberId },
-			// {
-			// 	onSuccess: () => {
-			// 		setIsWorking(false);
-			//    setShowModal(true);
-			// 	},
-			// },
-		);
+		await endAttendance({ projectId, memberId });
+		clearAttendance();
 		setIsWorking(false);
 		setShowModal(true);
 	};
 
 	const closeModal = () => setShowModal(false);
 
-	const confirmWork = () => {
+	const confirmWork = async () => {
+		// await
 		closeModal();
 		navigate(`/project/${projectId}/commute`);
 	};
 
-	//startAt시간 -> 한국시간으로 포맷팅
-	const convertToKST = (dateString: string) => {
-		const serverDateTime = new Date(dateString);
-		const koreaDateTime = new Date(serverDateTime.getTime() + 9 * 60 * 60 * 1000);
-
-		//날짜 형식 포맷팅
-		const date = `${koreaDateTime.getMonth() + 1}. ${koreaDateTime.getDate()}`;
-
-		//시간 형식 포맷팅
-		const hours = koreaDateTime.getHours().toString().padStart(2, '0');
-		const minutes = koreaDateTime.getMinutes().toString().padStart(2, '0');
-		const time = `${hours}:${minutes}`;
-		// koreaDateTime.toLocaleString('ko-KR');
+	//서버에서 받은 시간 포맷팅
+	const convertToKST = (serverDateTime: string) => {
+		console.log('server : ', serverDateTime);
+		const [datePart, timePart] = serverDateTime.split('T');
+		const date = datePart.split('-').slice(1).join('.'); // '02.14' 형식으로 변환
+		const time = timePart.slice(0, 5); // '06:29' 형식으로 변환
+		console.log(date, time);
 
 		return { date, time };
 	};
 
-	const { date, time } = attendance?.data ? convertToKST(attendance.data.startAt) : { date: '', time: '' };
-	// const time = attendance?.data ? convertToKST(attendance.data.startAt) : '';
-	console.log(time);
-
-	console.log(attendance);
 	console.log(isWorking);
 
 	return (
 		<div className='flex flex-col justify-center space-y-2'>
 			<div className='flex flex-col items-center justify-center'>
-				<div className={`text-lg font-bold ${!isWorking ? 'invisible' : ''}`}>{date}</div>
-				<div className={`text-2xl font-bold ${!isWorking ? 'invisible' : ''}`}>{time}</div>
+				<div className={`text-lg font-bold ${!isWorking ? 'invisible' : ''}`}>{startDateTime?.date}</div>
+				<div className={`text-2xl font-bold ${!isWorking ? 'invisible' : ''}`}>{startDateTime?.time}</div>
 			</div>
 			<div className='flex space-x-2'>
 				<button
 					disabled={isWorking}
 					className={`flex w-20 h-20 rounded-2xl items-center justify-center  ${
-						isWorking ? 'bg-gray-300' : 'bg-sub-color hover:bg-main-color'
+						isWorking ? 'bg-gray-300' : 'commute-btn'
 					}`}
 					onClick={handleStartAttendance}
 				>
@@ -105,16 +108,17 @@ const CommuteCheckBtn = ({ projectId, memberId }: CommuteCheckBtnProps) => {
 				<button
 					disabled={!isWorking}
 					className={`flex w-20 h-20 rounded-2xl items-center justify-center ${
-						!isWorking ? 'bg-gray-300' : 'bg-sub-color hover:bg-main-color'
+						!isWorking ? 'bg-gray-300' : 'commute-btn'
 					}`}
 					onClick={handleEndAttendance}
 				>
 					퇴근
 				</button>
 			</div>
+			{/* 여기부터 모달---------------------- */}
 			{showModal && (
 				<div
-					className='fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center'
+					className='fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-[9999]'
 					id='my-modal'
 				>
 					<div className='relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white'>

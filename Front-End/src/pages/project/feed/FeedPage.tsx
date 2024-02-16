@@ -3,6 +3,8 @@ import FreeFeed from '../../../components/feed/FreeFeed';
 import TaskFeed from '../../../components/feed/TaskFeed';
 import { useRequireAuth } from '../../../hooks/useRequireAuth';
 
+import '../../../styles/page/project-home/feed.scss';
+
 const FeedPage = () => {
 	useRequireAuth();
 
@@ -31,8 +33,8 @@ const FeedPage = () => {
 	const selectedButtonClass = 'text-main-color';
 
 	return (
-		<div className='relative'>
-			<div className='flex justify-center items-center relative mt-20'>
+		<div className='relative h-5/6 feed-main'>
+			<div className='flex justify-center items-center relative mt-20 '>
 				<button
 					ref={taskButtonRef}
 					className={`font-sans mb-2 text-2xl mr-40 ${page === '업무' ? selectedButtonClass : ''}`}
@@ -48,7 +50,7 @@ const FeedPage = () => {
 					자유
 				</button>
 				<div
-					className='absolute bottom-0 h-1 bg-main-color transition-all duration-1000'
+					className='absolute bottom-0 h-2 bg-main-color transition-all duration-1000'
 					style={{ left: `${highlightStyle.left}px`, width: `${highlightStyle.width}px` }}
 				></div>
 			</div>

@@ -5,9 +5,10 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import { fetchUserProfile } from '../../utils/fetchUserProfile';
 import { useUserStore } from '../../stores/useUserStore';
 import { ERROR_CODES } from '../../constants/errorCodes';
-// import { axiosInstance } from "../../apis/lib/axios";
+// import { axiosInstance } from '../../apis/lib/axios';
 import { proxyAxiosInstance } from '../../apis/lib/proxyAxios';
 import axios from 'axios';
+import { FaGithubAlt } from 'react-icons/fa6';
 
 export const LoginPage: React.FC = () => {
 	const [username, setUserName] = useState('');
@@ -15,23 +16,8 @@ export const LoginPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { setAccessToken } = useAuthStore();
 	const { setProfile } = useUserStore();
-
-	// const githubSubmit = async () => {
-	// 	try {
-	// 		const response = await proxyAxiosInstance.post('https://www.ssafy-prog.com/oauth2/authorization/github');
-
-	// 		const accessToken = response.headers['accesstoken'];
-
-	// 		if (accessToken) {
-	// 			setAccessToken(accessToken); // 추출한 토큰을 Zustand 스토어에 저장
-
-	// 			await fetchUserProfile(accessToken, setProfile, navigate); // 사용자 프로필 정보 가져오기
-	// 			navigate('/');
-	// 		}
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// };
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [modalMessage, setModalMessage] = useState<string>('');
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -57,26 +43,26 @@ export const LoginPage: React.FC = () => {
 			//axios error인지 확인, error_code 처리
 			if (axios.isAxiosError(error) && error.response) {
 				const errorCode = error.response.data.exceptionDto.errorCode;
-				const errorMsg = error.response.data.exceptionDto.errorMessage;
 
 				if (errorCode === ERROR_CODES.MEMBER.LOGIN_FAILED) {
-					alert(errorMsg);
+					// alert(errorMsg);
+					setModalMessage('이메일과 비밀번호를 확인해주세요!');
+					setIsModalOpen(true); // 모달창을 열어 사용자에게 메시지 표시
 				}
 			}
 		}
 	};
 
 	return (
-		<div className='flex items-center justify-center h-screen'>
-			<div className='border-solid border-2 p-4 rounded-lg'>
+		<div className='flex items-center justify-center pt-20 h-full'>
+			<div className='border-solid border-2 p-6 rounded-lg'>
 				<div className='flex items-center justify-center'>
 					<img src={ProgImage} alt='로고 이미지' className='h-16' />
-					<span className='text-3xl font-bold'>Prog</span>
+					<span className='text-3xl font-bold'>ProG</span>
 				</div>
 				<p className='m-2 text-center'>환영합니다!</p>
-				<p className='text-center'>로그인을 통해</p>
 				<p className='mb-4 text-center'>당신의 프로젝트와 꿈으로 나아가보세요</p>
-				<form onSubmit={handleSubmit} className='m-2'>
+				<form onSubmit={handleSubmit} className='p-2'>
 					<div>
 						<label htmlFor='id-input' />
 						<input
@@ -112,15 +98,32 @@ export const LoginPage: React.FC = () => {
 					회원가입
 				</Link>
 				<hr className='my-4' />
-				<a
-					href={import.meta.env.VITE_REDIRECT_URI}
-					className='inline-block w-full bg-white text-gray-800 py-2 px-4 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 mb-2'
-				>
-					GitHub으로 로그인하기
-				</a>
-				<a className='inline-block w-full bg-white text-gray-800 py-2 px-4 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800'>
-					Google로 로그인하기
-				</a>
+				<div className='flex'>
+					<FaGithubAlt className='mt-3 w-5 h-4' />
+					<a
+						href={import.meta.env.VITE_REDIRECT_URI}
+						className='inline-block w-full bg-white text-gray-800 py-2 ml-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 mb-2'
+					>
+						GitHub으로 로그인
+					</a>
+				</div>
+				{isModalOpen && (
+					<div className='fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center'>
+						<div className='relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white'>
+							<div className='mt-3 text-center'>
+								<h3 className='text-lg leading-6 font-medium text-gray-900'>{modalMessage}</h3>
+								<div className='items-center px-4 py-3'>
+									<button
+										onClick={() => setIsModalOpen(false)}
+										className='mt-3 px-4 py-2 bg-main-color text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300'
+									>
+										닫기
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

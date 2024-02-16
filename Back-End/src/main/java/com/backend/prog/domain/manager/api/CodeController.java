@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/codes")
+@RequestMapping("/api/codes")
 @Log4j2
 public class CodeController {
 

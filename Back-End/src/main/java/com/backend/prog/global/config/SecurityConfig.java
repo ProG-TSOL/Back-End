@@ -25,7 +25,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -68,8 +67,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers(ALLOWED_PATTERNS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/comments/**", "/projects/**").permitAll()
+                        .requestMatchers(Arrays.stream(ALLOWED_PATTERNS)
+                                .map(pattern -> "/api" + pattern)
+                                .toArray(String[]::new)).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/comments/**", "/api/projects/**").permitAll()
                         .anyRequest().hasRole("USER"))
                 .logout(logout -> logout
                         .logoutUrl("/members/logout")
@@ -77,11 +78,11 @@ public class SecurityConfig {
                         .logoutSuccessHandler(jwtLogoutSuccessHandler()))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint()).accessDeniedHandler(customAccessDeniedHandler()));
 
-        http.addFilterAfter(oAuth2LoginFilter(), LogoutFilter.class);
+        http.addFilterAfter(loginAuthenticationFilter(), LogoutFilter.class);
+        http.addFilterAfter(oAuth2LoginFilter(), LoginAuthenticationFilter.class);
         http.addFilterAfter(jwtExceptionFilter(), OAuth2LoginFilter.class);
-        http.addFilterBefore(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtReissueTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtReissueTokenFilter(), JwtExceptionFilter.class);
+        http.addFilterAfter(jwtAuthenticationFilter(), JwtReissueTokenFilter.class);
 
         return http.build();
     }
@@ -92,7 +93,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Set-Cookie"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Cookie"));
         configuration.setExposedHeaders(Arrays.asList("Content-Type", "accessToken","Set-Cookie"));
         configuration.setAllowCredentials(true);
 

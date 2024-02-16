@@ -4,6 +4,7 @@ import { ERROR_CODES } from '../../constants/errorCodes';
 import { reissueToken } from '../../utils/authUtils';
 
 export const proxyAxiosInstance = axios.create({
+	baseURL: import.meta.env.MODE === 'development' ? '/' : import.meta.env.VITE_API_URL,
 	withCredentials: true, //쿠키 포함
 });
 

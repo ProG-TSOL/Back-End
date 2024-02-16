@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/works")
+@RequestMapping("/api/works")
 @RequiredArgsConstructor
 @Log4j2
 public class WorkController {

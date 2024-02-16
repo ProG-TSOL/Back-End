@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/s3")
+@RequestMapping("/api/s3")
 public class S3Controller {
 
     private final S3Service s3Service;

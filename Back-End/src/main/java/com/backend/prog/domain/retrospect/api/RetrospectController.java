@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/retrospects")
+@RequestMapping("/api/retrospects")
 @RequiredArgsConstructor
 @Log4j2
 public class RetrospectController {

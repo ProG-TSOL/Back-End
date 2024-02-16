@@ -19,7 +19,7 @@ import java.security.Principal;
 
 @Log4j2
 @RestController
-@RequestMapping("/members")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
 

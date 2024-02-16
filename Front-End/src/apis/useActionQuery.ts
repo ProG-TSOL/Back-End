@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { axiosInstance } from './lib/axios';
 import { queryKeys } from '../constants/queryKeys';
+import { useRequireAuth } from '../hooks/useRequireAuth';
 
 interface ActionDatas {
 	actionId: number;
@@ -21,8 +22,9 @@ const getAction = async (projectId: number): Promise<ActionData> => {
 };
 
 export const useActionQuery = (projectId: number) => {
+	useRequireAuth();
 	return useQuery<ActionData>({
-		queryKey: [queryKeys.getAction],
+		queryKey: [queryKeys.getAction, projectId],
 		queryFn: () => getAction(projectId),
 	});
 };

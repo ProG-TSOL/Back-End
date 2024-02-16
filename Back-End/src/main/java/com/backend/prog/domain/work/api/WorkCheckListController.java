@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("/worklist")
+@RequestMapping("/api/worklist")
 @RequiredArgsConstructor
 @Log4j2
 public class WorkCheckListController {

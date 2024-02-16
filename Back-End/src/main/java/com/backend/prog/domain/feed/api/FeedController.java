@@ -14,7 +14,7 @@ import java.util.List;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/feeds")
+@RequestMapping("api/feeds")
 public class FeedController {
 
     private final FeedService feedService;

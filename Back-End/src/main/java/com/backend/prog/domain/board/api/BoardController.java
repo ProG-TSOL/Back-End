@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/boards")
+@RequestMapping("/api/boards")
 @RequiredArgsConstructor
 @Log4j2
 public class BoardController {

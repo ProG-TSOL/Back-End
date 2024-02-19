@@ -1,0 +1,13 @@
+jwt:
+  secretKey: NOo5YIVm5yDDSublQMW3M0ZAMnwDSRdXMVkE58Uwfjhk411aJ9o6h2AL1tE8gkfX
+
+  access:
+    expiration: 1800
+    header: accessToken
+
+  refresh:
+    expiration: 1209600 #  (1000L(ms -> s) * 60L(s -> m) * 60L(m -> h) * 24L(h -> 하루) * 14(2주))
+    header: refreshToken
+  authorization:
+    header: Authorization
+    prefix: Bearer

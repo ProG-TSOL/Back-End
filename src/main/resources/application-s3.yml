@@ -1,0 +1,12 @@
+cloud:
+  aws:
+    credentials:
+      access-key: AKIAQ3EGVVAXRQUNJAJ4
+      secret-key: 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
+
+    s3:
+      bucket: prog-bucket-ssafy
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

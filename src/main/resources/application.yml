@@ -1,0 +1,16 @@
+server:
+  port: 8080
+#  servlet:
+#    context-path: '/api'
+
+spring:
+  servlet:
+    context-path: /api
+  config:
+    import:
+      - application-datasource.yml
+      - application-s3.yml
+      - application-jwt.yml
+      - application-email.yml
+      - application-oauth.yml
+

@@ -64,7 +64,7 @@ public class FeedServiceimpl implements FeedService {
         kafkaTemplate.send(topic, kafkaDto);
     }
 
-//    @KafkaListener(topics = "feed_created", groupId = "group_1")
+    @KafkaListener(topics = "feed_created", groupId = "group_1")
     @Transactional
     public void consume(KafkaFeedDto kafkaFeedDto) {
         log.debug("■■■■■■■■■ 피드 등록 시작 ■■■■■■■■■");

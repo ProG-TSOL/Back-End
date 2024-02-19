@@ -23,15 +23,6 @@ public class CodeCommonService {
     private final CodeDetailRepository codeDetailRepository;
     private final CodeRepository codeRepository;
 
-    public Code getCode(String codeName) {
-        return codeRepository.findByName(codeName);
-    }
-
-    public Code getCode(Integer codeId) {
-        return codeRepository.findById(codeId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-    }
-
     public CodeDetail getCodeDetail(Integer codeDetailId) {
         return codeDetailRepository.findById(codeDetailId)
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));

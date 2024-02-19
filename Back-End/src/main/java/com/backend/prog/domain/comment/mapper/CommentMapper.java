@@ -12,7 +12,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class CommentMapper {
-
     public List<CommentDto.Response> dtoToResponses(List<CommentSimpleDto> list) {
         return list.stream().map(ct -> CommentDto.Response.builder()
                 .id(ct.getId())
@@ -23,7 +22,7 @@ public class CommentMapper {
                         .build()
                 )
                 .isDeleted(ct.isDeleted())
-                .isParent(ct.getParentId() != null ? true : false)
+                .isParent(ct.getParentId() != null)
                 .children(ct.getChildren())
                 .content(ct.getContent())
                 .createdAt(ct.getCreatedAt())
@@ -42,7 +41,7 @@ public class CommentMapper {
                         .build()
                 )
                 .isDeleted(ct.isDeleted())
-                .isParent(ct.getParentId() != null ? true : false)
+                .isParent(ct.getParentId() != null)
                 .content(ct.getContent())
                 .createdAt(ct.getCreatedAt())
                 .modifiedAt(ct.getModifiedAt())

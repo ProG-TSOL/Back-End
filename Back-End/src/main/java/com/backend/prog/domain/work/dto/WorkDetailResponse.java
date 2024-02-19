@@ -1,7 +1,6 @@
 package com.backend.prog.domain.work.dto;
 
 import com.backend.prog.domain.comment.dto.CommentDto;
-import com.backend.prog.domain.comment.dto.CommentSimpleDto;
 import com.backend.prog.domain.manager.dto.CodeDetailSimpleResponse;
 import lombok.Builder;
 import lombok.Data;

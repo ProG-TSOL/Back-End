@@ -2,14 +2,12 @@ package com.backend.prog.domain.manager.dto;
 
 
 import com.backend.prog.domain.manager.domain.CodeDetail;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
 public class CodeDetailSimpleResponse {
-
     private Integer id;
     private String detailName;
     private String detailDescription;

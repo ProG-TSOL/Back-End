@@ -1,6 +1,5 @@
 package com.backend.prog.domain.manager.application;
 
-import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.manager.dto.*;
 
 import java.util.List;
@@ -12,7 +11,6 @@ public interface CodeService {
     void saveCode(CreateCodeRequest code);
     void modifyCode(UpdateCodeRequest code);
 
-//    List<CodeDetailResponse> getCodeDetailList(String codeName);
     List<CodeDetailSimpleResponse> getCodeDetailList(String codeName);
     CodeDetailResponse getCodeDetail(Integer codeId);
     void saveCodeDetail(CreateCodeDetailRequest codeDetail);

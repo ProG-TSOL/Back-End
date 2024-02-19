@@ -18,7 +18,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Log4j2
 public class ActionController {
-
     private final ActionService actionService;
 
     @PostMapping

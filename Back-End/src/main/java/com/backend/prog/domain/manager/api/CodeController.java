@@ -15,10 +15,7 @@ import java.util.List;
 @RequestMapping("/api/codes")
 @Log4j2
 public class CodeController {
-
     private final CodeService codeService;
-
-    // ################################ Code  Start ################################
 
     @PostMapping
     public void saveCode(@Valid @RequestBody CreateCodeRequest code) {
@@ -44,10 +41,6 @@ public class CodeController {
         return codeService.getCodeByName(codeName);
     }
 
-    // ################################ Code  End ################################
-
-
-    // ################################ Code Detail Start ################################
     @PostMapping("/details")
     public void saveCodeDetail(@Valid @RequestBody CreateCodeDetailRequest codeDetail) {
         printLog("saveCodeDetail");
@@ -61,7 +54,6 @@ public class CodeController {
     }
 
     @GetMapping("/details/{codeName}")
-//    public List<CodeDetailResponse> getCodeDetailList(@PathVariable("codeName") String codeName) {
     public List<CodeDetailSimpleResponse> getCodeDetailList(@PathVariable("codeName") String codeName) {
         printLog("getCodeDetailList");
         return codeService.getCodeDetailList(codeName);
@@ -72,8 +64,6 @@ public class CodeController {
         printLog("getCodeDetail");
         return codeService.getCodeDetail(codedetailId);
     }
-
-    // ################################ Code Detail End ################################
 
     private void printLog(String excetuionMethod) {
         log.debug("■■■■■ {} ■■■■■", excetuionMethod);

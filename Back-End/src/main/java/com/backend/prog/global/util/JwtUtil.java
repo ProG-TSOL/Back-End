@@ -27,6 +27,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtUtil {
 
+    private static final Map<String, Object> HEADERS = new HashMap<>(){{
+        put("typ", "JWT"); put("alg", "HS256");
+    }};
+
     @Value("${jwt.secretKey}")
     private String secretKey;
 
@@ -47,10 +51,6 @@ public class JwtUtil {
 
     @Value("${jwt.authorization.prefix}")
     public String prefix;
-
-    private final Map<String, Object> HEADERS = new HashMap<>(){{
-        put("typ", "JWT"); put("alg", "HS256");
-    }};
 
     private final RefreshTokenRepository refreshTokenRepository;
 

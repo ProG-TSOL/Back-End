@@ -9,14 +9,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Log4j2
 @RequiredArgsConstructor
 public class JwtReissueTokenFilter extends OncePerRequestFilter {
 

@@ -1,7 +1,6 @@
 package com.backend.prog.domain.comment.application;
 
 import com.backend.prog.domain.comment.dto.CommentDto;
-import com.backend.prog.domain.comment.dto.CommentSimpleDto;
 
 import java.util.List;
 

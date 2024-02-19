@@ -4,7 +4,6 @@ import lombok.Builder;
 
 public class CodeDetailDto {
     public record Request(Integer techCode) {
-
     }
 
     @Builder

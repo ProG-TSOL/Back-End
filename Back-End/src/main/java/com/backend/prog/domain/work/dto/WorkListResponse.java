@@ -1,7 +1,10 @@
 package com.backend.prog.domain.work.dto;
 
 import com.backend.prog.domain.manager.dto.CodeDetailSimpleResponse;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 

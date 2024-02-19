@@ -5,13 +5,11 @@ import com.backend.prog.global.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import java.io.IOException;
 
-@Log4j2
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 

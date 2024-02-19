@@ -5,9 +5,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * 공통 에러 처리를 위한 ExceptionAdvice
+ * Exception 발생 시 CommonResult를 반환
+ * CommonException, RuntimeException, AccessDeniedException, Exception을 처리
+ * 에러에 따라 필요 로직 추가
+ */
 @RestControllerAdvice
 public class CommonExceptionAdvice {
 

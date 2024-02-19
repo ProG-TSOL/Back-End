@@ -1,6 +1,5 @@
 package com.backend.prog.domain.comment.dao;
 
-import com.backend.prog.domain.comment.dto.CommentDto;
 import com.backend.prog.domain.comment.dto.CommentSimpleDto;
 import com.backend.prog.domain.manager.domain.CodeDetail;
 

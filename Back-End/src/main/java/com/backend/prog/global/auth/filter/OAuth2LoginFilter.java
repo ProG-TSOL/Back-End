@@ -10,7 +10,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,11 +22,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-@Log4j2
 @RequiredArgsConstructor
 public class OAuth2LoginFilter extends OncePerRequestFilter {
-
-    private static final String PATTERN = "/members/login/oauth2";
 
     private final LoginSuccessHandler loginSuccessHandler;
 
@@ -41,6 +37,8 @@ public class OAuth2LoginFilter extends OncePerRequestFilter {
 
     private final OAuth2MemberService oAuth2MemberService;
 
+    private static final String PATTERN = "/api/members/login/oauth2";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
@@ -49,8 +47,6 @@ public class OAuth2LoginFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        log.info(path);
 
         try {
             String provider = path.split("/")[4];

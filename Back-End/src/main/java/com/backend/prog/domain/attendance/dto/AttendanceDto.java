@@ -6,15 +6,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class AttendanceDto {
-    public record Post(){
+    public record Post() {
 
     }
 
-    public record Patch(){
+    public record Patch() {
 
     }
 
     @Builder
-    public record Response(Long id, LocalDate workingDay, LocalTime workingTime){
+    public record Response(Long id, LocalDate workingDay, LocalTime workingTime) {
     }
 }

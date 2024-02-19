@@ -2,6 +2,7 @@ package com.backend.prog.domain.member.api;
 
 import com.backend.prog.domain.member.application.MemberService;
 import com.backend.prog.domain.member.dto.MemberDto;
+import com.backend.prog.global.common.CommonApiResponse;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.Map;
 
 @Log4j2
 @RestController
@@ -108,5 +111,27 @@ public class MemberController {
         memberService.withdrawalMember(request, response, id);
 
         SecurityContextHolder.clearContext();
+    }
+
+    @PostMapping("/email-verification")
+    public CommonApiResponse<?> sendAuthCode(@RequestBody Map<String, String> emailMap) {
+        memberService.sendAuthCode(emailMap.get("email"));
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(null)
+                .cnt(1)
+                .build();
+    }
+
+    @PostMapping("/email-verification-confirm")
+    public CommonApiResponse<?> verifyAuthCode(@RequestBody Map<String, String> map) {
+        memberService.verifyAuthCode(map.get("email"), map.get("authCode"));
+
+        return CommonApiResponse.builder()
+                .status(HttpStatus.OK)
+                .data(null)
+                .cnt(1)
+                .build();
     }
 }

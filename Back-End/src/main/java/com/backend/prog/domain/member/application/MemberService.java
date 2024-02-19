@@ -16,7 +16,7 @@ public interface MemberService {
 
     MemberDto.Response getProfile(Integer id);
 
-    MemberDto.DetailResponse getDetailProfile(Integer id);
+    void updateProfile(Integer id, MemberDto.ProfilePatch memberDto, MultipartFile file);
 
     void checkEmail(String email);
 

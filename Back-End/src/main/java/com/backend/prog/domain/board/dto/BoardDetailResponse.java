@@ -33,7 +33,6 @@ public class BoardDetailResponse {
 
     private List<BoardImgResponse> boardImgResponse;
 
-    // TODO : 댓글 dto 추가
     public BoardDetailResponse toDto(Member member, Board board, List<BoardImage> boardImages, String position) {
         // 회원
         this.memberId = member.getId();

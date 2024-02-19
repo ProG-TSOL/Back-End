@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CodeResponse {
-
     private Integer id;
     private String name;
     private String description;

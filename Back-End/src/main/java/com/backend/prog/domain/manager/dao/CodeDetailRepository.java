@@ -11,7 +11,6 @@ import java.util.List;
 
 @Repository
 public interface CodeDetailRepository extends JpaRepository<CodeDetail, Integer> {
-
     List<CodeDetail> findByCode(Code code);
 
     CodeDetail findByCodeAndDetailName(Code code, String detailName);

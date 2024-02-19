@@ -131,13 +131,6 @@ public class WorkServiceImpl implements WorkService {
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        // 2. 멤버 -> 신청자, 담당자
-        Member producer = memberRepository.findById(work.getProducerId().getId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-
-        Member consumer = memberRepository.findById(work.getConsumerId().getId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-
         // 3. 업무 체크리스트
         List<WorkCheckList> workCheckLists = workCheckListRepository.findAllByWork(work);
         List<CheckListResponse> checkList = workCheckLists.stream()

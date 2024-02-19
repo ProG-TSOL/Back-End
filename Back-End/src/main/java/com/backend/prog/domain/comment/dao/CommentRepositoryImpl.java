@@ -13,7 +13,6 @@ import java.util.List;
 import static com.backend.prog.domain.comment.domain.QComment.comment;
 
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
-
     private final JPAQueryFactory jpaQueryFactory;
 
     public CommentRepositoryImpl(EntityManager entityManager) {
@@ -25,7 +24,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     public List<CommentSimpleDto> getComments(CodeDetail findCodeDetail, Long contentId) {
         QComment co = new QComment("co");
 
-        List<CommentSimpleDto> list = jpaQueryFactory
+        return jpaQueryFactory
                 .select(new QCommentSimpleDto(
                                 co.id,
                                 co.contentCode,
@@ -46,7 +45,5 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .from(co)
                 .where(co.parentId.isNull(), co.contentCode.eq(findCodeDetail), co.contentId.eq(contentId))
                 .fetch();
-
-        return list;
     }
 }

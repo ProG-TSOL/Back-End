@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CodeDetailResponse {
-
     private CodeResponse code;
     private Integer id;
     private String detailName;
     private String detailDescription;
     private String imgUrl;
     private Boolean isUse;
-
 }

@@ -9,8 +9,6 @@ public class ProjectJobId implements Serializable {
     private Long projectId;
     private Integer jobCode;
 
-    // TODO : projectJobID hashcode, equals 구현
-
     @Override
     public int hashCode() {
         return super.hashCode();

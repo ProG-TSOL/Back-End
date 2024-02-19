@@ -26,7 +26,6 @@ public class CodeServiceImpl implements CodeService {
     private final CodeRepository codeRepository;
     private final ModelMapper modelMapper;
 
-
     @Override
     public List<CodeResponse> getCodeList() {
         List<Code> codeList = codeRepository.findAll();
@@ -83,7 +82,6 @@ public class CodeServiceImpl implements CodeService {
     @Override
     @Transactional
     public void saveCodeDetail(CreateCodeDetailRequest codeDetail) {
-//        CodeDetail entity = modelMapper.map(codeDetail, CodeDetail.class);
         Code code = codeRepository.findById(codeDetail.codeId())
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 

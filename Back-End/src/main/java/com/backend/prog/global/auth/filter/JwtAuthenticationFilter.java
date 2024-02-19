@@ -9,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,17 +20,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Log4j2
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] TOKEN_CHECK_EXCLUDE_PATTERNS = {"/members/login", "/members/sign-up", "/members/nickname-validation-check"
-            , "/members/email-verification", "/members/email-verification-confirm", "/members/profile/", "/members/detail-profile/", "/oauth2/authorization/", "/login/oauth2/code/"
-            , "/codes", "/codes/", "/codes/details/", "/codes/details/detail/"};
+    private static final String[] TOKEN_CHECK_EXCLUDE_PATTERNS = {"/api/members/login", "/api/members/sign-up", "/api/members/nickname-validation-check"
+            , "/api/members/email-verification", "/api/members/email-verification-confirm", "/api/members/profile/", "/api/members/detail-profile/", "/api/oauth2/authorization/", "/api/login/oauth2/code/"
+            , "/api/codes", "/api/codes/", "/api/codes/details/", "/api/codes/details/detail/"};
 
-    private static final String[][] TOKEN_CHECK_EXCLUDE_PATTERNS_AND_METHOD = {{"GET", "/comments"}, {"GET", "/projects"}};
+    private static final String[][] TOKEN_CHECK_EXCLUDE_PATTERNS_AND_METHOD = {{"GET", "/api/comments"}, {"GET", "/api/projects"}};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -73,7 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException expiredJwtException) {
             throw new CommonException(ExceptionEnum.EXPIRED_ACCESS_TOKEN);
         } catch (Exception exception) {
-            log.info(exception);
             throw new CommonException(ExceptionEnum.INVALID_ACCESS_TOKEN);
         }
     }

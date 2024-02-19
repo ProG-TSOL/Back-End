@@ -192,7 +192,6 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberRepository.findById(board.getMember().getId())
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        // TODO : service 구현체 댓글 조회 추가
         // 3.포지션
         ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));

@@ -1,6 +1,5 @@
 package com.backend.prog.global.auth.domain;
 
-
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;

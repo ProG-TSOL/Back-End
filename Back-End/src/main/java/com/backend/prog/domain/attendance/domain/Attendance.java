@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 

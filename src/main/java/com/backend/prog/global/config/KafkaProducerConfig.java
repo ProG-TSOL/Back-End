@@ -19,7 +19,7 @@ public class KafkaProducerConfig {
     public ProducerFactory<String, KafkaFeedDto> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         // Producer가 처음으로 연결할 Kafak Broker의 위치
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9094");
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9094");
         // Producer가 전송하는 데이터의 Key와 Value의 직렬화 방법
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);

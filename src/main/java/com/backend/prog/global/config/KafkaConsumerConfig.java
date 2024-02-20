@@ -19,7 +19,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, KafkaFeedDto> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9094");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9094");
         // Consumer Group ID , 그룹은 같은 토픽을 소비하는 Consumer들의 그룹
         // Consumer는 토픽의 서로 다른 파티션에서 메시지를 읽어 들임
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "group_1");

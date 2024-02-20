@@ -2,8 +2,6 @@ package com.backend.prog.global.auth.api;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Qualifier;
 import java.net.URI;
 import java.util.List;
 
@@ -18,7 +16,4 @@ public interface OAuth2Api {
 
     @GetMapping
     List<Object> getEmailForGithub(URI uri, @RequestHeader("Authorization") String accessToken);
-
-    @GetMapping("/repos/{owner}/{repo}/readme")
-    Object getReadMe(URI uri, @PathVariable("owner") String owner, @PathVariable("repo") String repo);
 }

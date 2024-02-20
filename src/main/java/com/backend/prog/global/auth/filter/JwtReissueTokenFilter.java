@@ -20,7 +20,7 @@ public class JwtReissueTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private static final String PATTERN = "/members/reissue-token";
+    private static final String PATTERN = "/api/members/reissue-token";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

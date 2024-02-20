@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-
 public interface MemberRepository extends JpaRepository<Member, Integer> {
     @EntityGraph(attributePaths = "roles")
     @Query("select m from Member m where m.email = :email")
@@ -20,7 +19,4 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
     @Query("select m from Member m where m.id = :id and m.isDeleted = false")
     Optional<Member> findByIdAndDeletedNot(@Param("id") Integer id);
-
-    @Query("select m from Member m where m.email = :email and m.isDeleted = false")
-    Optional<Member> findByEmailAndDeletedNot(@Param("email") String email);
 }

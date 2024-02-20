@@ -25,8 +25,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2LoginFilter extends OncePerRequestFilter {
 
-    private static final String PATTERN = "/members/login/oauth2";
-
     private final LoginSuccessHandler loginSuccessHandler;
 
     private final LoginFailureHandler loginFailureHandler;
@@ -39,6 +37,8 @@ public class OAuth2LoginFilter extends OncePerRequestFilter {
 
     private final OAuth2MemberService oAuth2MemberService;
 
+    private static final String PATTERN = "/api/members/login/oauth2";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
@@ -48,9 +48,8 @@ public class OAuth2LoginFilter extends OncePerRequestFilter {
             return;
         }
 
-
         try {
-            String provider = path.split("/")[4];
+            String provider = path.substring(PATTERN.length() + 1);
             String code = request.getParameter("code");
             String clientId = environment.getProperty("oauth2." + provider + ".client-id");
             String clientSecret = environment.getProperty("oauth2." + provider + ".client-secret");

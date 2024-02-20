@@ -30,7 +30,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -52,10 +52,10 @@ public class SecurityConfig {
 
     private final OAuth2MemberService oAuth2MemberService;
 
-    private static final String[] ALLOWED_PATTERNS = {"/members/login", "/members/sign-up", "/members/nickname-validation-check/**"
-            , "/members/email-verification", "/members/email-verification-confirm", "/members/profile/{email}", "/members/detail-profile/{email}"
-            , "/oauth2/authorization/{providerReg}", "/login/oauth2/code/github", "/codes", "/codes/{codename}", "/codes/details/{codename}", "/codes/details/detail/{detailCodeId}"
-            , "/codes", "/codes/{codename}", "/codes/details/{codename}", "/codes/details/detail/{detailCodeId}"};
+    private static final String[] ALLOWED_PATTERNS = {"/api/members/login", "/api/members/sign-up", "/api/members/nickname-validation-check/**"
+            , "/api/members/email-verification", "/api/members/email-verification-confirm", "/api/members/profile/{email}", "/api/members/detail-profile/{email}"
+            , "/api/oauth2/authorization/{providerReg}", "/api/login/oauth2/code/github", "/api/codes", "/api/codes/{codename}", "/api/codes/details/{codename}", "/api/codes/details/detail/{detailCodeId}"
+            , "/api/codes", "/api/codes/{codename}", "/api/codes/details/{codename}", "/api/codes/details/detail/{detailCodeId}"};
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
@@ -65,13 +65,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers(Arrays.stream(ALLOWED_PATTERNS)
-                                .map(pattern -> "/api" + pattern)
-                                .toArray(String[]::new)).permitAll()
+                        .requestMatchers(ALLOWED_PATTERNS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/comments/**", "/api/projects/**").permitAll()
                         .anyRequest().hasRole("USER"))
                 .logout(logout -> logout
-                        .logoutUrl("/members/logout")
+                        .logoutUrl("/api/members/logout")
                         .addLogoutHandler(jwtLogoutHandler())
                         .logoutSuccessHandler(jwtLogoutSuccessHandler()))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint()).accessDeniedHandler(customAccessDeniedHandler()));
@@ -89,10 +87,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Cookie"));
-        configuration.setExposedHeaders(Arrays.asList("Content-Type", "accessToken","Set-Cookie"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Cookie"));
+        configuration.setExposedHeaders(List.of("Content-Type", "accessToken","Set-Cookie"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

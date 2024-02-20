@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -21,9 +22,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
+
+    private static final Map<String, Object> HEADERS = new HashMap<>(){{
+        put("typ", "JWT"); put("alg", "HS256");
+    }};
 
     @Value("${jwt.secretKey}")
     private String secretKey;
@@ -45,10 +51,6 @@ public class JwtUtil {
 
     @Value("${jwt.authorization.prefix}")
     public String prefix;
-
-    private final Map<String, Object> HEADERS = new HashMap<>(){{
-        put("typ", "JWT"); put("alg", "HS256");
-    }};
 
     private final RefreshTokenRepository refreshTokenRepository;
 

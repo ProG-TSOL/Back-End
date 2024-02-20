@@ -34,5 +34,3 @@ public interface MemberService {
 
     void withdrawalMember(HttpServletRequest request, HttpServletResponse response, Integer id);
 }
-
-

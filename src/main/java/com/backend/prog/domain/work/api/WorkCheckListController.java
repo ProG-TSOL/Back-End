@@ -5,7 +5,6 @@ import com.backend.prog.domain.work.dto.CheckListResponse;
 import com.backend.prog.domain.work.dto.CreateCheckListRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/worklist")
 @RequiredArgsConstructor
-@Log4j2
 public class WorkCheckListController {
 
     private final WorkCheckListService workCheckListService;

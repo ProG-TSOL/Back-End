@@ -9,13 +9,11 @@ import com.backend.prog.domain.project.domain.ProjectTechCode;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ProjectTechCodeService {

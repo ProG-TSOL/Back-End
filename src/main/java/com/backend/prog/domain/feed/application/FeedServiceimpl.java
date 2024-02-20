@@ -18,7 +18,6 @@ import com.backend.prog.domain.work.domain.Work;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
-@Log4j2
 @RequiredArgsConstructor
 public class FeedServiceimpl implements FeedService {
 
@@ -67,8 +65,6 @@ public class FeedServiceimpl implements FeedService {
     @KafkaListener(topics = "feed_created", groupId = "group_1")
     @Transactional
     public void consume(KafkaFeedDto kafkaFeedDto) {
-        log.debug("■■■■■■■■■ 피드 등록 시작 ■■■■■■■■■");
-        log.debug("■■■■■■■■■ kafkaFeedDto : {}  ■■■■■■■■■", kafkaFeedDto);
         Project project = projectRespository.findById(kafkaFeedDto.getProjectId())
                 .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
@@ -80,7 +76,6 @@ public class FeedServiceimpl implements FeedService {
 
         // 해당 프로젝트에 속한인원에게 전부?, 글 올린 당사자는 피드 생성x
         saveFeed(kafkaFeedDto.getContentsId(), project, codeDetail, member);
-        log.debug("■■■■■■■■■ 피드 등록 성공 ■■■■■■■■■");
     }
 
     @Transactional

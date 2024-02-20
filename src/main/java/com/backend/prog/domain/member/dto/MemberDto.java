@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
+import java.util.List;
+
 public class MemberDto {
 
     public record Post(@NotNull @Email String email
@@ -19,7 +21,8 @@ public class MemberDto {
     public record ProfilePatch(Integer id
             , @NotNull @Pattern(regexp = "^([A-Za-z가-힣])+") String name
             , @NotNull @Pattern(regexp = "^([A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣])+") String nickname
-            , String description) {
+            , String description
+            , List<MemberTechDto.Request> memberTechDtoList) {
     }
 
     public record PasswordPatch(Integer id
@@ -43,7 +46,7 @@ public class MemberDto {
     }
 
     @Builder
-    public record DetailResponse(Integer id, String email, Provider provider, String name, String nickname, String description, String imgUrl) {
+    public record DetailResponse(Integer id, String email, Provider provider, String name, String nickname, String description, String imgUrl, List<MemberTechDto.Response> memberTechList, String readMe) {
     }
 
 }

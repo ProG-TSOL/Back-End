@@ -7,7 +7,6 @@ import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/actions")
 @RequiredArgsConstructor
-@Log4j2
 public class ActionController {
     private final ActionService actionService;
 

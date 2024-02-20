@@ -9,7 +9,6 @@ import com.backend.prog.domain.work.dto.CreateCheckListRequest;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Log4j2
 public class WorkCheckListServiceImpl implements WorkCheckListService {
 
     private final WorkCheckListRepository workCheckListRepository;
@@ -43,7 +41,7 @@ public class WorkCheckListServiceImpl implements WorkCheckListService {
                 .map(entity -> modelMapper.map(entity, CheckListResponse.class))
                 .toList();
 
-        result.forEach(data -> log.debug("결과데이터 : {}",data));
+
         return result;
     }
 

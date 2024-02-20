@@ -25,11 +25,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] TOKEN_CHECK_EXCLUDE_PATTERNS = {"/api/members/login", "/api/members/sign-up", "/api/members/nickname-validation-check"
-            , "/api/members/email-verification", "/api/members/email-verification-confirm", "/api/members/profile/", "/api/members/detail-profile/", "/api/oauth2/authorization/", "/api/login/oauth2/code/"
-            , "/api/codes", "/api/codes/", "/api/codes/details/", "/api/codes/details/detail/"};
+    private static final String[] TOKEN_CHECK_EXCLUDE_PATTERNS = {"/members/login", "/members/sign-up", "/members/nickname-validation-check"
+            , "/members/email-verification", "/members/email-verification-confirm", "/members/profile/", "/members/detail-profile/", "/oauth2/authorization/", "/login/oauth2/code/"
+            , "/codes", "/codes/", "/codes/details/", "/codes/details/detail/"};
 
-    private static final String[][] TOKEN_CHECK_EXCLUDE_PATTERNS_AND_METHOD = {{"GET", "/api/comments"}, {"GET", "/api/projects"}};
+    private static final String[][] TOKEN_CHECK_EXCLUDE_PATTERNS_AND_METHOD = {{"GET", "/comments"}, {"GET", "/projects"}};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

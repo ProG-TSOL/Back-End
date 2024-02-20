@@ -6,7 +6,6 @@ import com.backend.prog.domain.retrospect.dto.RetrospectLatestResponse;
 import com.backend.prog.domain.retrospect.dto.RetrospectSaveRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,13 +14,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/retrospects")
 @RequiredArgsConstructor
-@Log4j2
 public class RetrospectController {
     private final RetrospectService retrospectService;
 
     @PostMapping
     public void saveRetrospect(@Valid @RequestBody RetrospectSaveRequest request) {
-        log.debug("받은 값 : {}", request);
         retrospectService.saveRetrospect(request);
     }
 

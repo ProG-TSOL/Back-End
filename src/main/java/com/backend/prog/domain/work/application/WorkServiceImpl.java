@@ -24,7 +24,6 @@ import com.backend.prog.global.common.constant.CommonCode;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Log4j2
 public class WorkServiceImpl implements WorkService {
     private final WorkRepository workRepository;
     private final WorkCheckListRepository workCheckListRepository;
@@ -190,7 +188,6 @@ public class WorkServiceImpl implements WorkService {
 
         // 1. 업무체크리스트 삭제
         if (!workCheckLists.isEmpty()) {
-            log.debug("■■■■■ 업무체크리스트 삭제 ■■■■■");
             workCheckListRepository.deleteAll(workCheckLists);
         }
 
@@ -198,12 +195,10 @@ public class WorkServiceImpl implements WorkService {
         CodeDetail codeDetail = codeCommonService.getCodeDetailByNames(CommonCode.CODE_CONTENT, CommonCode.CONTENT_WORK);
         List<Comment> commentList = commentRepository.inquriyForDeletion(codeDetail, workId);
         if (!commentList.isEmpty()) {
-            log.debug("■■■■■ 댓글 삭제 ■■■■■");
             commentList.forEach(DeleteEntity::deleteData);
         }
 
         // 3. 업무 삭제
-        log.debug("■■■■■ 업무 삭제 ■■■■■");
         workRepository.delete(work);
 
     }

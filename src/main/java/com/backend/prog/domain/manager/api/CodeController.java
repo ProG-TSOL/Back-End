@@ -5,7 +5,6 @@ import com.backend.prog.domain.manager.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/codes")
-@Log4j2
 public class CodeController {
     private final CodeService codeService;
 
@@ -66,7 +64,7 @@ public class CodeController {
     }
 
     private void printLog(String excetuionMethod) {
-        log.debug("■■■■■ {} ■■■■■", excetuionMethod);
+
     }
 
 }

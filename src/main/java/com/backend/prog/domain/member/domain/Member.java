@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -60,6 +62,9 @@ public class Member extends DeleteEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST , fetch = FetchType.LAZY)
+    private List<MemberTech> techs = new ArrayList<>();
+
     @Builder
     public Member(String email, String password, String name, String nickname) {
         this.email = email;
@@ -91,6 +96,10 @@ public class Member extends DeleteEntity {
         this.roles.add(role);
     }
 
+    public void changeTechs(List<MemberTech> techs) {
+        this.techs = techs;
+    }
+
     public void changeGithubInfo(String gitUsername) {
         this.gitUsername = gitUsername;
     }
@@ -99,7 +108,6 @@ public class Member extends DeleteEntity {
     public void deleteData() {
         super.deleteData();
         this.roles = null;
-        this.nickname = "탈퇴회원";
+        this.nickname = "알 수 없음";
     }
-
 }

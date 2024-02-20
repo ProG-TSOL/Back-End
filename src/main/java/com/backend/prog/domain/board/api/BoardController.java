@@ -3,7 +3,6 @@ package com.backend.prog.domain.board.api;
 import com.backend.prog.domain.board.application.BoardService;
 import com.backend.prog.domain.board.dto.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +11,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/boards")
 @RequiredArgsConstructor
-@Log4j2
 public class BoardController {
 
     private final BoardService boardService;

@@ -12,14 +12,12 @@ import com.backend.prog.global.S3.S3Uploader;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Log4j2
 @Service
 @RequiredArgsConstructor
 public class AdditionalService {

@@ -22,7 +22,6 @@ import com.backend.prog.domain.work.domain.Work;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
@@ -56,7 +54,6 @@ public class CommentServiceImpl implements CommentService {
         //존재하는 컨텐츠인지 검증
         switch (findCodeDetail.getDetailDescription()) {
             case "프로젝트" -> {
-                log.info("ok");
                 Project findProject = projectRespository.findById(post.contentId()).orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
                 contentId = findProject.getId();
             }

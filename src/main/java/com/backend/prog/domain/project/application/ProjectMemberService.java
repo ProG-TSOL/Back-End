@@ -13,14 +13,12 @@ import com.backend.prog.domain.project.mapper.ProjectMemberMapper;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ProjectMemberService {
@@ -40,7 +38,6 @@ public class ProjectMemberService {
     public List<ProjectMemberDto.Response> getProjectMembers(Long projecId) {
         List<ProjectMember> projectMembers = projectMemberRespository.findAllByProjectId(projecId);
 
-        log.info("{}", projectMembers);
 
         return projectMemberMapper.entityToResponse(projectMembers);
     }
@@ -52,8 +49,6 @@ public class ProjectMemberService {
 
         //삭제 신청한 사람이 자기자신인 혹은 팀장 권한의 멤버인지 검사
         if(!projectMember.getRoleCode().getId().equals(48) && memberId != exiledId){
-            log.info("memid {}", memberId);
-            log.info("exid {}", exiledId);
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
         
@@ -95,7 +90,6 @@ public class ProjectMemberService {
         ProjectMemberId moveId = new ProjectMemberId(projectId, moveMember);
         ProjectMember movePM =  projectMemberRespository.findById(moveId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        log.info(projectTotal.getTotal() > projectTotal.getCurrent() && moveJob != movePM.getJobCode().getId());
 
         //현재원이 총원보다 작고 포지션 이동할 멤버가 이미 해당 포지션이 아니면 수정
         if(projectTotal.getTotal() > projectTotal.getCurrent() && moveJob != movePM.getJobCode().getId()){

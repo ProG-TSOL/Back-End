@@ -18,7 +18,6 @@ import com.backend.prog.global.S3.S3Uploader;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -64,7 +62,6 @@ public class ProjectService {
         if (file != null) {
             projectImgUrl = s3Uploader.saveUploadFile(file);
             projectImgUrl = s3Uploader.getFilePath(projectImgUrl);
-            log.info("{]", projectImgUrl);
         }
 
         //프로젝트 상태 코드 (프로젝트 생성시 모집중을 기본값으로 입력)
@@ -117,7 +114,6 @@ public class ProjectService {
     public Page<ProjectDto.SimpleResponse> getProjects(Integer memberId, String keyword, Integer techCodes, Integer statusCode, Pageable pageable) {
         Page<Project> projects = projectRespository.getProject(keyword, techCodes, statusCode,
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending()));
-        log.info("페이징 정보 {}", PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending()));
         Page<ProjectDto.SimpleResponse> result = projectMapper.entityToSimpleResponse(projects, memberId);
 
         return result;

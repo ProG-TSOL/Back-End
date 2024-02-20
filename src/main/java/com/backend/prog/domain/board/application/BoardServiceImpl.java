@@ -17,7 +17,6 @@ import com.backend.prog.global.S3.S3Uploader;
 import com.backend.prog.global.error.CommonException;
 import com.backend.prog.global.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
-@Log4j2
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
@@ -96,7 +94,6 @@ public class BoardServiceImpl implements BoardService {
                 String fileName = s3Uploader.saveUploadFile(file);
                 // 벌크 insert를 위해 url list 저장
                 String filePath = s3Uploader.getFilePath(fileName);
-//                log.debug("■■■■■ filePath : {} ■■■■■", filePath);
                 fileUrls.add(filePath);
             });
 

@@ -3,10 +3,8 @@ package com.backend.prog.domain.comment.api;
 import com.backend.prog.domain.comment.application.CommentService;
 import com.backend.prog.domain.comment.dto.CommentDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
-@Log4j2
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/comments")

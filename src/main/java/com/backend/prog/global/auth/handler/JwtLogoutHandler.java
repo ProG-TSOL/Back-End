@@ -17,7 +17,6 @@ public class JwtLogoutHandler implements LogoutHandler {
         try {
             jwtUtil.destroyToken(request, response);
         } catch (Exception exception) {
-            //로그아웃
         }
     }
 }

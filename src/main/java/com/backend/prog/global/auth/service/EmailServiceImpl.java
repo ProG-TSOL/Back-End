@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
@@ -19,14 +20,13 @@ public class EmailServiceImpl implements EmailService {
 
     private final EmailAuthRepository emailAuthRepository;
 
-    private static final String TITLE = "PROG 가입을 위한 인증번호입니다.";
+    private final String TITLE = "PROG 가입을 위한 인증번호입니다.";
 
-    private static final String CONTENT = "인증번호: ";
+    private final String CONTENT = "인증번호: ";
 
     @Value("${spring.mail.auth-code-expiration-millis}")
     private Integer EXPIRATION;
 
-    @Transactional
     public void sendEmail(String email, String authCode) {
         try {
             SimpleMailMessage emailForm = createEmailForm(email, authCode);

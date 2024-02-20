@@ -4,9 +4,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.http.HttpStatus;
 
-/**
- * 공통 에러 처리를 위한 Exception
- */
 @Getter
 @ToString
 public enum ExceptionEnum {
@@ -19,7 +16,6 @@ public enum ExceptionEnum {
     ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "E1002"),
     ACCESS_DENIED_EXCEPTION(HttpStatus.FORBIDDEN, "E1003"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E1004"),
-    UNAUTHORIZED_EXCEPTION(HttpStatus.UNAUTHORIZED, "E1005"),
 
     // Custom Exception CE1000번대
     //공통 에러: 1000번대

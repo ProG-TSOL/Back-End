@@ -22,6 +22,7 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
         // 컨트롤러의 반환 타입이 객체일때 직렬화를 위해 -> MappingJackson2HttpMessageConverter 사용
         // 해방 컨버터가 사용될 경우에만 ResponseBodyAdvice가 실행되도록 설정
         return MappingJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
+//        return true;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
             ServerHttpRequest request,
             ServerHttpResponse response) {
 
-        int cnt;
+        int cnt = 0;
         cnt = getDataCnt(body);
 
         return CommonApiResponse.builder()
@@ -45,14 +46,13 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
 
     /**
      * 데이터의 개수를 구하는 메소드
-     *
      * @return 데이터의 개수
      */
     private static int getDataCnt(Object body) {
         int cnt;
         if (body instanceof Collection) {
-            cnt = ((Collection<?>) body).size();
-        } else if (body instanceof Object[]) {
+            cnt =  ((Collection<?>) body).size();
+        } else if (body instanceof  Object[]) {
             cnt = ((Object[]) body).length;
         } else {
             cnt = 1;
